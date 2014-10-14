@@ -61,14 +61,14 @@ calc_dynamic(N *nus, UEntry *us, char *s, N i)
 
 	for(i--; i>=0; i--) {
 		if(s[i] == 'U') {
-			us[1].l = us[0].l;
-			us[1].r = us[0].r;
+			us->l = us[-1].l;
+			us->r = us[-1].r;
 			us++;
 			(*nus)++;
 			continue;
 		}
 		if(s[i] != lastc) {
-			lastn = (n - lastn + 1) % MOD_VAL;
+			lastn = ((n+MOD_VAL) - lastn + 1) % MOD_VAL;
 		}
 		if(s[i] == 'R')
 			us->r = n;
@@ -83,18 +83,11 @@ calc_dynamic(N *nus, UEntry *us, char *s, N i)
 static N
 calc_result(UEntry *us, N nus, N n, N level, char *lrs)
 {
-	N i;
-
-	if(nus==0)
-		return n;
-	i = nus-level;
-	if(i<0) i = 0;
-
-	for(; i<nus && level-1-i >= 0; i++) {
-		if(lrs[level-1-i] == 'R')
-			n = (n + 1 + us[i].r) % MOD_VAL;
+	for(nus--, level--; nus >= 0 && level >= 0; nus--, level--) {
+		if(lrs[level] == 'R')
+			n = (n + 1 + us[nus].l) % MOD_VAL;
 		else
-			n = (us[i].l + 1 + n) % MOD_VAL;
+			n = (us[nus].r + 1 + n) % MOD_VAL;
 	}
 	return n;
 }
@@ -103,22 +96,18 @@ int
 main()
 {
 	UEntry us[MAX_LEN];
-	char s[MAX_LEN] = "RL", t[MAX_LEN] = "LURLUL", lrs[MAX_LEN];
+	char s[MAX_LEN], t[MAX_LEN], lrs[MAX_LEN];
 	N i, nus, n, level, res;
+	int total;
 
-/*	puts(s);*/
-	level = process_insts(lrs, s);
-
-/*	printf("%d\n", level);*/
-	n = calc_dynamic(&nus, us, t, ((N)strlen(t)) - 1);
-/*	printf("NINI IS %d\n", n);
-
-	puts(t);
-	putchar('\n');
-	for(i=0; i<nus; i++)
-		printf("%ld %ld\n", us[i].l, us[i].r);*/
-
-	res = calc_result(us, nus, n, level, lrs);
-	printf("%ld\n", res);
+	scanf("%d", &total);
+	for(i=0; i<total; i++) {
+		scanf("%s", s);
+		scanf("%s", t);
+		level = process_insts(lrs, s);
+		n = calc_dynamic(&nus, us, t, ((N)strlen(t)) - 1);
+		res = calc_result(us, nus, n, level, lrs);
+		printf("Case %ld: %ld\n", i+1, res);
+	}
 	return 0;
 }
