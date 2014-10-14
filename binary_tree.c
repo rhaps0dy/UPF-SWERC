@@ -7,6 +7,12 @@
 
 typedef long N;
 
+/* stores value of next L and R postfix to a U letter */
+typedef struct UEntry UEntry;
+struct UEntry {
+	N l, r;
+};
+
 /* Processes the initial instruction string, outputting an LR-only string of moves
 actually made and returning the tree level. Assumes s ends in nullchar */
 static N
@@ -31,70 +37,79 @@ process_insts(char *lrs, char *s)
 	return level;
 }
 
-/* calculates the number of nodes per suffix and stores it in nnodes.
-stores the indices of all Us in us, the end is marked with a MAX_LEN value
-s is the character sequence, i is the index of last char */
-static void
-calc_dynamic(N *nnodes, N *us, char *s, N i)
+static N
+calc_dynamic(N *nus, UEntry *us, char *s, N i)
 {
-	N lastn;
+	N lastn, n;
 	char lastc;
 
 	lastc = s[i];
 	lastn = 1;
+	us->r = us->l = 0;
+	*nus = 0;
 	if(lastc == 'U') {
-		nnodes[i] = 1;
-		*us = i;
+		n = 1;
+		us[1].l = us[0].l;
+		us[1].r = us[0].r;
 		us++;
-	} else
-		nnodes[i] = 2;
+		(*nus)++;
+	} else if(lastc == 'L') {
+		n = 2;
+		us->l = 1;
+	} else {
+		n = 2;
+		us->r = 1;
+	}
 
 	for(i--; i>=0; i--) {
 		if(s[i] == 'U') {
-			nnodes[i] = nnodes[i+1];
-			*us = i;
+			us[1].l = us[0].l;
+			us[1].r = us[0].r;
 			us++;
+			(*nus)++;
 			continue;
 		}
-		if(s[i] != lastc)
-			lastn = (nnodes[i+1] - lastn + 1) % MOD_VAL;
-		nnodes[i] = (nnodes[i+1] + lastn) % MOD_VAL;
+		if(s[i] != lastc) {
+			lastn = ((n+MOD_VAL) - lastn + 1) % MOD_VAL;
+		}
+		if(s[i] == 'R')
+			us->r = n;
+		else
+			us->l = n;
+		n = (n + lastn) % MOD_VAL;
 		lastc = s[i];
 	}
-
-	*us = MAX_LEN;
+	return n;
 }
 
-/* calculates the number of possible nodes you can reach from a given tree
-level, sequence, and precalculated values from calc_dynamic */
 static N
-calc_n(N level, N *nnodes, N i, N *us)
+calc_result(UEntry *us, N nus, N n, N level, char *lrs)
 {
-	N total;
-
-	total = 0;
+	for(nus--, level--; nus >= 0 && level >= 0; nus--, level--) {
+		if(lrs[level] == 'R')
+			n = (n + 1 + us[nus].l) % MOD_VAL;
+		else
+			n = (us[nus].r + 1 + n) % MOD_VAL;
+	}
+	return n;
 }
 
 int
 main()
 {
-	char s[MAX_LEN], lrs[MAX_LEN];
-	N nnodes[MAX_LEN], us[MAX_LEN], i, level;
+	UEntry us[MAX_LEN];
+	char s[MAX_LEN], t[MAX_LEN], lrs[MAX_LEN];
+	N i, nus, n, level, res;
+	int total;
 
-	scanf("%s", s);
-	level = process_insts(lrs, s);
-	puts(lrs);
-	printf("level %ld\n", level);
-
-	/*calc_dynamic(nnodes, us, s, sizeof(s)-2);
-
-	puts(s);
-	for(i=0; i<sizeof(s)-1; i++)
-		printf("%d ", nnodes[i]);
-	putchar('\n');
-
-	for(i=0; us[i]!=MAX_LEN; i++)
-		printf("%d ", us[i]);
-	putchar('\n');*/
+	scanf("%d", &total);
+	for(i=0; i<total; i++) {
+		scanf("%s", s);
+		scanf("%s", t);
+		level = process_insts(lrs, s);
+		n = calc_dynamic(&nus, us, t, ((N)strlen(t)) - 1);
+		res = calc_result(us, nus, n, level, lrs);
+		printf("Case %ld: %ld\n", i+1, res);
+	}
 	return 0;
 }
