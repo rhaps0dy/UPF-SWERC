@@ -23,9 +23,20 @@ calc_n :: [UEntry] -> Int -> String -> Int
 calc_n [] n _ = n
 calc_n _ n [] = n
 calc_n (u:us) n (x:xs) = calc_n us (n + 1 + newus) xs
-	where newus = if x == 'R' then right u else left u
+    where newus = if x == 'R' then right u else left u
 
-calc_result s t = calc_n (fst res) (snd res) (process_insts s)
-	where res = suffix_step ([], 0, 0, '_') $ reverse t
+calc_result s t = calc_n (reverse (fst res)) (snd res) (process_insts s)
+    where res = suffix_step ([], 0, 0, '_') $ reverse t
 
+one_tree :: Int -> Int -> IO ()
+one_tree total i
+    | i == total = putStr ""
+    | otherwise = do
+        s <- getLine 
+        t <- getLine
+        putStrLn $ "Case " ++ (show (i+1)) ++ ": " ++ show (calc_result s t)
+        one_tree total (i+1)
 
+main = do
+    total <- getLine
+    one_tree (read total) 0
