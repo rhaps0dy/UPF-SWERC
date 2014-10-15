@@ -1,40 +1,49 @@
+import Control.Monad
+
 mod_val :: Int
 mod_val = 21092013
 
 data UEntry = UEntry { left :: Int, right :: Int } deriving (Show)
+data Inst = R | L | U deriving (Show, Eq)
 
-process_insts :: String -> String
-process_insts s = foldl f "" s
-    where f "" 'U' = ""
-          f (x:xs) 'U' = xs
-          f xs c = c:xs
+insts :: String -> [Inst]
+insts s = map getInst s
+    where getInst 'U' = U
+          getInst 'L' = L
+          getInst 'R' = R
 
-suffix_step :: ([UEntry], Int, Int, Char) -> String -> ([UEntry], Int)
-suffix_step ((u:us), n, _, _) [] = (us, n)
-suffix_step ((u:us), n, lastn, lastc) (x:xs)
-    | x == 'U'  = suffix_step ((u:u:us), n, lastn, lastc) xs
-    | otherwise = suffix_step (nextus, nextn, nextlastn, x) xs
-    where nextlastn = if x == lastc then lastn else ((n + mod_val) - lastn + 1) `mod` mod_val
+calc_location :: [Inst] -> [Inst]
+calc_location ds = foldl f [] ds
+    where f [] U = []
+          f (i:is) U = is
+          f is i = i:is
+
+suffix_step :: [UEntry] -> Int -> Int -> Inst -> [Inst] -> ([UEntry], Int)
+suffix_step (u:us) n _ _ [] = (us, n)
+suffix_step (u:us) n lastn lasti (U:is) = suffix_step (u:u:us) n lastn lasti is
+suffix_step (u:us) n lastn lasti (i:is) = suffix_step nextus nextn nextlastn i is
+    where nextlastn = if i==lasti then lastn else ((n + mod_val) - lastn + 1) `mod` mod_val
           nextn     = (n + nextlastn) `mod` mod_val
-          nextus    = if x == 'R' then (UEntry (left u) n):us else (UEntry n (right u)):us
-suffix_step ([], n, lastn, lastc) xs = suffix_step ([(UEntry 0 0)], 1, 1, '_') xs
+          nextus    = if i == R then (UEntry (left u) n):us else (UEntry n (right u)):us
 
-calc_n :: [UEntry] -> Int -> String -> Int
+calc_suffix = suffix_step [(UEntry 0 0)] 1 1 U
+
+calc_n :: [UEntry] -> Int -> [Inst] -> Int
 calc_n [] n _ = n
 calc_n _ n [] = n
-calc_n (u:us) n (x:xs) = calc_n us (n + 1 + newus) xs
-    where newus = if x == 'R' then right u else left u
+calc_n (u:us) n (R:is) = calc_n us (n + 1 + (left u)) is
+calc_n (u:us) n (L:is) = calc_n us (n + 1 + (right u)) is
 
-calc_result s t = calc_n (reverse (fst res)) (snd res) (process_insts s)
-    where res = suffix_step ([], 0, 0, '_') $ reverse t
+result s t = calc_n us n (calc_location (insts s))
+    where (us, n) = calc_suffix (reverse (insts t))
 
 one_tree :: Int -> Int -> IO ()
 one_tree total i
-    | i == total = putStr ""
+    | i == total = return ()
     | otherwise = do
         s <- getLine 
         t <- getLine
-        putStrLn $ "Case " ++ (show (i+1)) ++ ": " ++ show (calc_result s t)
+        putStrLn $ "Case " ++ show (i+1) ++ ": " ++ show (result s t)
         one_tree total (i+1)
 
 main = do
