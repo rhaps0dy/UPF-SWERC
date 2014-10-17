@@ -88,14 +88,11 @@ angle_with_xaxis(Vector v)
 static double
 gcd(double a, double b)
 {
-	double c;
-	for(;;) {
-		for(c=a; c>=b; c-=b);
-		if(IS_ZERO(c)) return b;
-		a = b;
-		b = c;
+	while(!IS_ZERO(a-b)) {
+		if(a>b) a-=b;
+		else b-=a;
 	}
-	return b;
+	return a;
 }
 
 static double
