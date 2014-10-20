@@ -1,146 +1,57 @@
 #include <cmath>
-#include <set>
-#include <vector>
-#include <algorithm>
-#include <sstream>
-#include <string>
-#include <iostream>
+#include <cstdio>
 
-#define X first
-#define Y second
+typedef long double N;
 
-using namespace std;
-typedef pair<double, double> Point;
-typedef Point Vector;
+#define PRECISION 1e-7L
+#define IS_ZERO(x) (x<PRECISION && x> -PRECISION)
 
-#define IS_ZERO(d) (d>-0.000001 && d < 0.000001)
+typedef struct Vec Vec;
+struct Vec {
+	N x, y;
 
-Point
-calc_center(double ax, double ay, double bx, double by, double cx, double cy)
+	Vec() {;}
+	Vec(N a, N b) { x = a; y = b; }
+	N operator* (Vec b) { return x*b.x + y*b.y; }
+	Vec operator* (N a) { return Vec(x*a, y*a); }
+	Vec operator- (Vec b) { return Vec(x-b.x, y-b.y); }
+	Vec operator+ (Vec b) { return Vec(x+b.x, y+b.y); }
+};
+
+static N mod(Vec a) { return sqrtl(a.x*a.x + a.y*a.y); }
+static Vec perp(Vec a) { return Vec(-a.y, a.x); }
+
+static Vec
+calc_center(Vec a, Vec b, Vec c)
 {
-	double amx, amy, a_x, a_y, bmx, bmy, b_x, b_y, m, n, x, y;
-
-	amx = -by+ay;
-	amy = bx-ax;
-	a_x = (ax+bx)/2.;
-	a_y = (ay+by)/2.;
-
-	bmx = -cy+by;
-	bmy = cx-bx;
-	b_x = (bx+cx)/2.;
-	b_y = (by+cy)/2.;
-
-	if(IS_ZERO(amx)) {
-		if(IS_ZERO(bmy)) {
-			return make_pair(a_x, b_y);
-		} else {
-			// bmx*m + b_x = a_x;
-			m = (a_x-b_x/bmx);
-			return make_pair(a_x, b_y+bmy*m);
-		}
-	}
-	if(IS_ZERO(bmx)) {
-		if(IS_ZERO(amy)) {
-			return make_pair(b_x, a_y);
-		} else {
-			// amx*n + a_x = b_x;
-			n = (b_x-a_x/amx);
-			return make_pair(b_x, a_y+amy*n);
-		}
-	}
-
-	n = ((bmy/bmx)*(a_x-b_x) + b_y - a_y)/(amy - bmy/bmx*amx);
-	m = (amx*n + a_x - b_x) / bmx;
-
-	x = amx*n+a_x;
-	y = amy*n+a_y;
-
-	x = bmx*m+b_x;
-	y = bmy*m+b_y;
-
-	return make_pair(x, y);
-}
-
-static double
-angle_with_xaxis(Vector v)
-{
-	double n;
-	if(IS_ZERO(v.Y)) {
-		if(v.X < 0.0) return M_PI;
-		return 0.0;
-	}
-	if(IS_ZERO(v.X)) {
-		if(v.Y < 0.0) return 3.*M_PI/2.;
-		return M_PI/2.;
-	}
-	n = (v.X < 0 ? -v.X : v.X)/sqrt(v.X*v.X + v.Y*v.Y);
-	if(v.X > 0) {
-		if(v.Y > 0)
-			return acos(n);
-		return 2*M_PI-acos(n);
-	} else {
-		if(v.Y > 0)
-			return M_PI-acos(n);
-		return M_PI+acos(n);
-	}
-}
-
-static double
-gcd(double a, double b)
-{
-	while(!IS_ZERO(a-b)) {
-		if(a>b) a-=b;
-		else b-=a;
-	}
-	return a;
-}
-
-static double
-calc_biggest_angle_portion(Vector a, Vector b, Vector c)
-{
-	vector<double> angs;
-	int ns[3], i;
-	double d;
-
-	angs.push_back(angle_with_xaxis(a));
-	angs.push_back(angle_with_xaxis(b));
-	angs.push_back(angle_with_xaxis(c));
-	sort(angs.begin(), angs.end());
-	d = angs[2];
-	angs[2] -= angs[1];
-	angs[1] -= angs[0];
-	angs[0] = angs[0]+M_PI*2-d;
-	return gcd(gcd(angs[2], angs[1]), angs[0]);
+	Vec abm = (a+b)*.5L;
+	Vec bcm = (b+c)*.5L;
+	Vec v2 = c-b;
+	Vec v1 = a-b;
+	return (v1 * (((bcm-abm)*v2)/(v2*v1))) + abm;
 }
 
 int
 main()
 {
-	double ax, ay, bx, by, cx, cy;
-	string s;
+	N angab, angbc, diam, remab, rembc;
+	Vec a, b, c, cen;
 
-	while(getline(cin, s)) {
-		if(s=="END") return 0;
-		istringstream iss(s);
-		iss >> ax >> ay;
-		cin >> bx >> by;
-		cin >> cx >> cy;
-		getline(cin, s);
-
-		Point p = calc_center(ax, ay, bx, by, cx, cy);
-
-		Vector a, b, c;
-		a.X = (ax - p.X);
-		a.Y = (ay - p.Y);
-		b.X = (bx - p.X);
-		b.Y = (by - p.Y);
-		c.X = (cx - p.X);
-		c.Y = (cy - p.Y);
-
-		/* now get smallest angles between them */
-		double ang = calc_biggest_angle_portion(a,b,c);
-		double res = 2*M_PI/ang;
-		printf("%.0f\n", res);
+	while(scanf("%Lf %Lf %Lf %Lf %Lf %Lf", &a.x, &a.y, &b.x, &b.y, &c.x, &c.y) == 6) {
+		cen = calc_center(a, b, c);
+		printf("%Lf %Lf\n", cen.x, cen.y);
+		diam = mod(cen-a)*2.L;
+		angab = asinl(fminl(mod(a-b)/diam, 1.L));
+		angbc = asinl(fminl(mod(b-c)/diam, 1.L));
+		for(int i=3; i<=1000; i++) {
+			diam = M_PI / ((N)i);
+			remab -= roundl(angab / diam) * diam;
+			rembc -= roundl(angbc / diam) * diam;
+			if(IS_ZERO(remab) && IS_ZERO(rembc)) {
+				printf("%d\n", i);
+				break;
+			}
+		}
 	}
 	return 0;
 }
