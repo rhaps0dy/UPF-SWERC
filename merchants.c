@@ -16,46 +16,50 @@ binomial_coefficient(int n, int k)
 	if(k > n-k)
 		k = n-k;
 	if(k == 0 || n <= 1)
-		return (binomial_cache[n][k] = 1);
+		return (binomial_cache[n][k] = 1%M);
 	binomial_cache[n][k] = (binomial_coefficient(n-1, k) + binomial_coefficient(n-1, k-1)) % M;
 	return binomial_cache[n][k];
 }
 
-long long ncombs[301][301];
-static long long
+long long ncombs[301][301], sum;
+static void
 calc(int n)
 {
 	int i, j, k;
 
+	memset(ncombs, 0, 301*301*sizeof(long long));
+	memset(binomial_cache, 0, 301*301*sizeof(long long));
+
 	ncombs[1][n] = binomial_coefficient(n, 0);
-	if(merchants[N-1] == 1) {
-		ncombs[1][n-1] = 0;
-	} else {
-		ncombs[1][n-2] = 0;
+	if(merchants[N-1] == 0)
 		ncombs[1][n-1] = binomial_coefficient(n, 1);
-	}
+
 	for(i=2; i<N; i++) {
-		for(j=n; n-j<=merchants[N-i]-i; j--) {
-			ncombs[i][j] = 0;
+		j=n-(i-merchants[N-i]);
+		if(j<0) j=0;
+		for(; j<=n; j++) {
 			for(k=n; k>=j; k--) {
 				ncombs[i][j] = (ncombs[i][j] + (binomial_coefficient(k, k-j)*ncombs[i-1][k]) % M) % M;
 			}
 		}
 	}
+	/*
 	for(i=1; i<N; i++) {
 		for(j=0; j<=n; j++)
 			printf("%lld ", ncombs[i][j]);
 		putchar('\n');
-	}
-	putchar('\n');
-	return 0;
+	} 
+	putchar('\n'); 
+	*/
+	sum = 0;
+	for(i=n; i>=0; i--)
+		sum = (sum + ncombs[N-1][i]) % M;
 }
 
 int
 main()
 {
 	int i, j, m, ncases, curcase;
-	long long sum;
 
 	scanf("%d", &ncases);
 	for(curcase=0; curcase<ncases; curcase++) {
@@ -63,7 +67,7 @@ main()
 		if(N==1) {
 			if(m==1)
 				scanf("%*d %*d");
-			sum = 1;
+			sum = 1%M;
 			goto YES;
 		}
 
@@ -81,7 +85,7 @@ main()
 				goto NO;
 		}
 
-		sum = calc(N-m);
+		calc(N-m);
 
 YES:
 		printf("YES %lld\n", sum);
