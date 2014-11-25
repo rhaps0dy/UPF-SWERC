@@ -1,0 +1,1231 @@
+\documentclass[10pt, a4, oneside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+\usepackage{setspace}
+\parskip=2mm
+
+\title{Notebook SWERC 2014}
+\author{Anders Jonsson, Javier Segovia}
+\date{The Binary Three: Sergio Almendros, Daniel Furelos, Adrià Garriga}
+\makeindex
+
+\begin{document}
+\maketitle
+
+Some parts in the sections marked with [STU] are taken from Stanford
+University's ACM Team notebook, available online at
+\verb-http://stanford.edu/~liszt90/acm/notebook.html-
+
+\tableofcontents
+
+\section{Trivia}
+\subsection{Precisión cout}
+\begin{verbatim}
+cout.setf(ios::fixed);
+cout.precision(8);
+\end{verbatim}
+\subsection{Librerías}
+\begin{tabular}{|r|l|r|l|r|l|}
+\hline
+\verb-algorithm- & \verb-sort-, \verb-(next|prev)_permutation- & \verb-map- & \verb-map<S,T>- &
+\verb-cfloat- & \verb-DBL_MAX- \\
+\hline
+\verb-queue- & \verb-priority_queue- & \verb-cmath- & \verb-pow-, \verb-sqrt- &
+\verb-set- & \verb-set<S>- \\
+\hline
+\verb-iostream- & \verb-cin-, \verb-cout- & \verb-string- & \verb-string- &
+\verb-iomanip- & \verb-setprecision- \\
+\hline
+\verb-utility- & \verb-pair<S,T>- & \verb-list- & \verb-list<T>- &
+\verb-vector- & \verb-vector<T>- \\
+\hline
+\verb-cstdlib- & \verb-abs-, \verb-rand- & \verb-sstream- &
+\verb-(i|o)stringstream- & \verb-iomanip- & \verb-setw-\\
+\hline
+\end{tabular}
+
+\subsection{Macros}
+\begin{verbatim}
+#define X first
+#define Y second
+#define LI long long
+#define MP make_pair
+#define PB push_back
+#define SZ size()
+#define SQ(a) ((a)*(a))
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#define FOR(i,x,y) for(int i=(int)x; i<(int)y; i++)
+#define RFOR(i,x,y) for(int i=(int)x; i>(int)y; i--)
+#define SORT(a) sort(a.begin(), a.end())
+#define RSORT(a) sort(a.rbegin(), a.rend())
+#define IN(a,pos,c) insert(a.begin()+pos,1,c)
+#define DEL(a,pos,cant) erase(a.begin()+pos,cant)
+\end{verbatim}
+
+\section{Números}
+\subsection{Primos}
+Guardar todos los primos entre $0$ y $10010$ en \verb-v-. Con esto podremos
+probar primos hasta $10^8$.
+\begin{verbatim}
+int k = 0, v[10000];
+v[k++] = 2; 
+for (int i = 3; i <= 10010; i += 2) {
+  bool b = true;
+  for (int j = 0; b && v[j]*v[j] <= i; j++)
+    b = i%v[j] > 0;
+  if (b) v[k++] = i;
+}
+\end{verbatim}
+\subsection{Máximo Común Divisor (Euclido)}
+\begin{verbatim}
+int gcd(int a, int b) {
+  if (a < b) return gcd(b, a);
+  else if (a%b == 0) return b;
+  else return gcd(b, a%b);
+}
+\end{verbatim}
+\subsection{Mínimo Común Múltiple}
+\verb-gcd(a,b)*lcm(a,b) = a*b-
+\subsection{[STU] Módulo inverso $ax (mod M) = 1$, módulo positivo}
+\begin{verbatim}
+// return a % b (positive value)
+int mod(int a, int b) {
+  return ((a%b)+b)%b;
+}
+
+// returns d = gcd(a,b); finds x,y such that d = ax + by
+int extended_euclid(int a, int b, int &x, int &y) {  
+  int xx = y = 0;
+  int yy = x = 1;
+  while (b) {
+    int q = a/b;
+    int t = b; b = a%b; a = t;
+    t = xx; xx = x-q*xx; x = t;
+    t = yy; yy = y-q*yy; y = t;
+  }
+  return a;
+}
+int mod_inverse(int a, int n) {
+  int x, y;
+  int d = extended_euclid(a, n, x, y);
+  if (d > 1) return -1;
+  return mod(x,n);
+}
+\end{verbatim}
+\subsection{Ejemplo next\_permutation}
+\begin{verbatim}
+int arr[] = {1, 2, 3};
+sort(arr, arr+3); //importante
+while(next_permutation(arr,arr+3)) ;
+\end{verbatim}
+
+\subsection{Coeficiente Binomial (n sobre k)}
+\[ \left( {r \choose k} \right) = {r+k-1 \choose k} \]
+\begin{verbatim}
+int bcoeff(int n, int k) {
+  if(k > n-k) k = n-k;
+  if(k == 0 || n <= 1) return 1;
+  return bcoeff(n-1, k) + bcoeff(n-1, k-1)
+}
+\end{verbatim}
+
+\subsection{Combinatorio de Catalán}
+\begin{verbatim}
+unsigned long long v[34];
+void catalan() {
+  v[0] = 1;
+  for (int i = 1; i <= 33; i++)
+    v[i] = ((2*i - 1) * 2 * v[i-1]) / (i+1);
+}
+\end{verbatim}
+
+\subsection{Clase Números Grandes}
+Needs \verb-vector-, \verb-string-, \verb-iostream-, \verb-cassert-, \verb-iomanip-.
+\begin{verbatim}
+#define BASE 1000000000
+
+struct big {
+  vector<int> V;
+  big(): V(1, 0) {}
+  big(int n): V(1, n) {assert(n < BASE);}
+  big(const big &b): V(b.V) {}
+
+  bool operator==(const big &b) const { return V==b.V; }
+  int &operator[](int i) { return V[i]; }
+  int operator[](int i) const { return V[i]; }
+  int size() const { return V.SZ; }
+  void resize(int i) { V.resize(i); }
+
+  bool operator<(const big &b) const {
+    for (int i = b.SZ-1; SZ == b.SZ && i >= 0; i--)
+      if (V[i] == b[i]) continue;
+      else return (V[i] < b[i]);
+    return (SZ < b.SZ);
+  }
+
+  void add_digit(int l) {
+    if (l > 0) V.PB(l);
+  }
+};
+
+big suma(const big &a, const big &b, int k) {
+  LI l = 0;
+  int size = MAX(a.SZ, b.SZ+k);
+  big c;  c.resize(size);
+  for (int i = 0; i < size; ++i) {
+    l += i < a.SZ ? a[i] : 0;
+    l += (k <= i && i < k + b.SZ) ? b[i-k] : 0;
+    c[i] = l%BASE;
+    l /= BASE;
+  }
+  c.add_digit(int(l));
+  return c;
+}
+
+big operator+(const big &a, const big &b) {
+  return suma(a, b, 0);
+}
+big operator+(const big &a, int b) {return a+big(b);}
+big operator+(int b, const big &a) {return a+big(b);}
+
+
+big operator-(const big &a, const big &b) {
+  assert(b < a || a == b);
+  LI l = 0, m = 0;
+  big c;  c.resize(a.SZ);
+  for (int i = 0; i < a.SZ; ++i) {
+    l += a[i];
+    l -= i < b.SZ ? b[i] + m : m;
+    if (l < 0) { l += BASE; m = 1; }
+    else m = 0;
+    c[i] = l%BASE;
+    l /= BASE;
+  }
+  if (c[c.SZ-1] == 0 && c.SZ > 1) c.resize(c.SZ-1);
+  return c;
+}
+big operator-(const big &a, int b) {return a-big(b);}
+
+big operator*(const big &a, int b) {
+  if (b == 0) return big(0);
+  big c;  c.resize(a.SZ);
+  LI l = 0;
+  for (int i = 0; i < a.SZ; ++i) {
+    l += (LI)b*a[i];
+    c[i] = l%BASE;
+    l /= BASE;
+  }
+  c.add_digit(int(l));
+  return c;
+}
+big operator*(int b, const big &a) {return a*b;}
+big operator*(const big &a, const big &b) {
+  big res;
+  for (int i = 0; i < b.SZ; ++i)
+    res = suma(res, a*b[i], i);
+  return res;
+}
+
+void divmod(const big &a, int b, big &div, int &mod) {
+  div.resize(a.SZ);
+  LI l = 0;
+  for (int i = a.SZ-1; i >= 0; --i) {
+    l *= BASE;
+    l += a[i];
+    div[i] = l/b;
+    l %= b;
+  }
+  if (div[div.SZ-1] == 0 && div.SZ > 1) div.resize(div.SZ-1);
+  mod=int(l);
+}
+
+big operator/(const big &a, int b) {
+  big div;  int mod;
+  divmod(a, b, div, mod);
+  return div;
+}
+
+int operator%(const big &a, int b) {
+  big div;  int mod;
+  divmod(a, b, div, mod);
+  return mod;
+}
+
+istream &operator>>(istream &is, big &b) {
+  string s;
+  if (is >> s) {
+    b.resize((s.SZ - 1)/9 + 1);
+    for (int n = s.SZ, k = 0; n > 0; n -= 9, k++) {
+      b[k] = 0;
+      for (int i = MAX(n-9, 0); i < n; i++)
+      b[k] = 10*b[k] + s[i]-'0';
+    }
+  }
+  return is;
+}
+
+ostream &operator<<(ostream &os, const big &b) {
+  os << b[b.SZ-1];
+  for (int k = b.SZ-2; k >= 0; k--)
+    os << setw(9) << setfill('0') << b[k];
+  return os;
+}
+\end{verbatim}
+
+
+\section{Matrices}
+Necesita \verb-cstring-.
+\begin{verbatim}
+#define SIZE 15    // tamaño de matriz cuadrada
+#define MOD 10007  // módulo de la multiplicación
+struct matriz {
+  int v[SIZE][SIZE];
+  matriz() { memset(v, 0, SIZE*SIZE*sizeof(int)); } // matriz de 0's
+  matriz(int x) {      // matriz con x's en la diagonal
+    memset(v, 0, SIZE*SIZE*sizeof(int));
+    for (int i = 0; i < SIZE; i++) v[i][i] = x;
+  }
+  // multiplicación de matrices módulo MOD
+  matriz operator*(matriz &m) {
+    matriz n;
+    for (int i = 0; i < SIZE; i++)
+      for (int j = 0; j < SIZE; j++)
+    for (int k = 0; k < SIZE; k++)
+      n.v[i][j] = (n.v[i][j] + v[i][k]*m.v[k][j])%MOD;
+    return n;
+  }
+};
+\end{verbatim}
+
+\subsection{Exponenciación (simulaciones)}
+Funciona con \verb-T = matriz- y \verb-U = big-;
+\begin{verbatim}
+template <typename T,typename U> T expo(T &t, U n) {
+  if (n == U(0)) return T(1);
+  else {
+    T u = expo(t, n/2);
+    if (n%2 > 0) return u*u*t; else return u*u;
+  }
+}
+\end{verbatim}
+
+\section{Grafos}
+\subsection{[STU] Camino Euleriano (pasar por todas las aristas)}
+\begin{verbatim}
+struct Edge;
+typedef list<Edge>::iterator iter;
+
+struct Edge
+{
+  int next_vertex;
+  iter reverse_edge;
+
+  Edge(int next_vertex)
+    :next_vertex(next_vertex)
+    { }
+};
+
+const int max_vertices = 3000;
+int num_vertices;
+list<Edge> adj[max_vertices];    // adjacency list
+
+vector<int> path;
+
+void find_path(int v) {
+  while(adj[v].size() > 0) {
+    int vn = adj[v].front().next_vertex;
+    adj[vn].erase(adj[v].front().reverse_edge);
+    adj[v].pop_front();
+    find_path(vn);
+  }
+  path.push_back(v);
+}
+
+void add_edge(int a, int b) {
+  adj[a].push_front(Edge(b));
+  iter ita = adj[a].begin();
+  adj[b].push_front(Edge(a));
+  iter itb = adj[b].begin();
+  ita->reverse_edge = itb;
+  itb->reverse_edge = ita;
+}
+\end{verbatim}
+
+\subsection{Dijkstra (con listas de adyacencia)}
+\begin{verbatim}
+typedef int V;          // tipo de costes
+typedef pair<V,int> P;  // par de (coste,nodo)
+typedef set<P> S;       // conjunto de pares
+
+int N;                  // numero de nodos
+vector<P> A[10001];     // listas adyacencia (coste,nodo)
+int prec[201]; // predecesores
+
+V dijkstra(int s, int t) {
+  S m;                          // cola de prioridad
+  vector<V> z(N, 1000000000);   // distancias iniciales
+  z[s] = 0;                     // distancia a s es 0
+  m.insert(MP(0, s));           // insertar (0,s) en m
+  while (m.SZ > 0) {
+    P p = *m.begin();   // p=(coste,nodo) con menor coste
+    m.erase(m.begin()); // elimina este par de m
+    if (p.Y == t) return p.X; // cuando nodo es t, acaba
+    // para cada nodo adjacente al nodo p.Y
+    for (int i = 0; i < (int)A[p.Y].SZ; i++) {
+      // q = (coste hasta nodo adjacente, nodo adjacente)
+      P q(p.X + A[p.Y][i].X, A[p.Y][i].Y);
+      // si q.X es la menor distancia hasta q.Y
+      if (q.X < z[q.Y]) {
+    m.erase(MP(z[q.Y], q.Y)); // borrar anterior
+    m.insert(q);              // insertar q
+    z[q.Y] = q.X;             // actualizar distancia
+    prec[q.Y] = p.Y;          // actualizar predecesores
+      }
+    }
+  }
+  return -1;
+}
+
+int main() {
+  N = 6;             // solucion 0-1-2-4-3-5, coste 11
+  A[0].PB(MP(2, 1)); // arista (0, 1) con coste 2
+  A[0].PB(MP(5, 2)); // arista (0, 2) con coste 5
+  A[1].PB(MP(2, 2)); // arista (1, 2) con coste 2
+  A[1].PB(MP(7, 3)); // arista (1, 3) con coste 7
+  A[2].PB(MP(2, 4)); // arista (2, 4) con coste 2
+  A[3].PB(MP(3, 5)); // arista (3, 5) con coste 3
+  A[4].PB(MP(2, 3)); // arista (4, 3) con coste 2
+  A[4].PB(MP(8, 5)); // arista (4, 5) con coste 8
+  cout << dijkstra(0, 5) << endl;
+}
+\end{verbatim}
+Después podemos ir siguiendo el array de predecesores después para ver el
+camino mínimo.
+
+\subsection{Kruskal (Minimum Spanning Tree)}
+$O(log V)$
+\begin{verbatim}
+typedef vector<pair<int,pair<int,int> > > V;
+
+vector< pair<long, int> > K[2000]; // kruskal tree
+int N, mf[2000]; // numero de nodos N <= 2000
+V v;             // vector de aristas
+                 // (coste, (nodo1, nodo2))
+
+int set(int n) { // conjunto conexo de n
+  if (mf[n] == n) return n;
+  else mf[n] = set(mf[n]); return mf[n];
+}
+
+int kruskal() {
+  int a, b, sum = 0;
+  sort(v.begin(), v.end());
+  for (int i = 0; i < N; i++)
+    mf[i] = i; // inicializar conjuntos conexos
+
+  for (int i = 0; i < (int)v.SZ; i++) {
+    a = set(v[i].Y.X), b = set(v[i].Y.Y);
+    if (a != b) { // si conjuntos son diferentes
+      mf[b] = a;  // unificar los conjuntos
+      sum += v[i].X; // agregar coste de arista
+      //estas dos lineas guardan el arbol visitados
+      K[v[i].Y.X].PB(MP(v[i].X, v[i].Y.Y));
+      K[v[i].Y.Y].PB(MP(v[i].X, v[i].Y.X));
+    }
+  }
+  return sum;
+}
+
+int main() {
+  N = 5;               // solucion 13:
+                       // (0,3),(1,2),(2,3),(3,4)
+  v.PB(MP(4,MP(0,1))); // arista (0,1) coste 4
+  v.PB(MP(4,MP(0,2))); // arista (0,2) coste 4
+  v.PB(MP(3,MP(0,3))); // arista (0,3) coste 3
+  v.PB(MP(6,MP(0,4))); // arista (0,4) coste 6
+  v.PB(MP(3,MP(1,2))); // arista (1,2) coste 3
+  v.PB(MP(7,MP(1,4))); // arista (1,4) coste 7
+  v.PB(MP(2,MP(2,3))); // arista (2,3) coste 2
+  v.PB(MP(5,MP(3,4))); // arista (3,4) coste 5
+  cout << kruskal() << endl;
+}
+\end{verbatim}
+
+\subsection{Maxflow}
+\begin{verbatim}
+#define N 10000 // numero maximo de nodos
+
+typedef pair<int,int> P;
+
+int n;          // numero de nodos
+vector<P> A[N]; // listas adyacencia (vecino,capacidad)
+vector<P> C[N]; // listas adyacencia aumentadas
+
+int BFS(int s, int t) {
+  int k = 0, l[N], q[N], r[N], v[N];
+  for (int i = 0; i < n; i++) v[i] = -1;
+  v[s] = 1000000000;  l[k++] = s;
+  for (int i = 0; i < k; i++)
+    for (int j = 0; j < (int)C[l[i]].size(); j++) {
+      P p = C[l[i]][j];
+      if (p.Y > 0 && v[p.X] < 0) {
+    l[k++] = p.X;
+    v[p.X] = MIN(v[l[i]], p.Y);
+    q[p.X] = l[i];  r[p.X] = j;
+      }
+    }
+  if (v[t] < 0) return 0;
+  for (int a = t; a != s; a = q[a]) {
+    C[q[a]][r[a]].Y -= v[t];
+    C[a][bb(MP(q[a], 0), C[a])].Y += v[t];
+  }
+  return v[t];
+}
+
+int maxflow(int s, int t) { // flujo maximo entre s y t
+  for (int i = 0; i < n; i++)
+    sort(A[i].begin(), A[i].end());
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < (int)A[i].SZ; j++) {
+      int x = A[i][j].X, y = bb(MP(i, 0), A[x]);
+      if (y == A[x].SZ || i < A[x][y].X)
+    C[x].PB(MP(i, 0));
+    }
+  for (int i = 0; i < n; i++) {
+    C[i].insert(C[i].end(), A[i].begin(), A[i].end());
+    sort(C[i].begin(), C[i].end());
+  }
+  int sum = 0;
+  for (int inc = 1; inc > 0; sum += inc = BFS(s, t));
+  return sum;
+}
+\end{verbatim}
+
+\subsection{Tarjan (Strongly connected components)}
+$O(|V| + |E|)$
+\begin{verbatim}
+int index, ct;
+vector<bool> I;
+vector<int> D, L, S;
+vector<vector<int> > V; // listas de adyacencia
+
+void tarjan (unsigned n) {
+  D[n] = L[n] = index++;
+  S.push_back(n);
+  I[n] = true;
+  for (unsigned i = 0; i < V[n].size(); ++i) {
+    if (D[V[n][i]] < 0) {
+      tarjan(V[n][i]);
+      L[n] = MIN(L[n], L[V[n][i]]);
+    }
+    else if (I[V[n][i]])
+      L[n] = MIN(L[n], D[V[n][i]]);
+  }
+  if (D[n] == L[n]) {
+    ++ct;
+    // todos los nodos eliminados de S pertenecen al mismo scc
+    while (S[S.size() - 1] != n) {
+      I[S.back()] = false;
+      S.pop_back();
+    }
+    I[n] = false;
+    S.pop_back();
+  }
+}
+
+void scc() {
+  index = ct = 0;
+  I = vector<bool>(V.size(), false);
+  D = vector<int>(V.size(), -1);
+  L = vector<int>(V.size());
+  S.clear();
+  for (unsigned n = 1; n <= V.size(); ++n)
+    if (D[n] < 0)
+      tarjan(n);
+  // ct = numero total de scc
+}
+\end{verbatim}
+
+\subsection{Bron-Kerbosch (máximo conjunto independiente)}
+Conjunto independiente = no hay dos nodos que sean adyacentes.
+\begin{verbatim}
+#define U unsigned int
+typedef vector<short int> V;
+
+vector<vector<U> > graf; // vertices/aristas del grafo
+U numv, kmax; // # conjuntos/tamano grupo independiente
+
+int evalua(V &vec) {
+  for (int n = 0; n < vec.size(); n++)
+    if (vec[n] == 1) return n;
+  return -1;
+}
+
+void Bron_i_Kerbosch() {
+  vector<U> v;
+  U i, j, aux, k = 0, bandera = 2;
+  vector<V> I, Ve, Va;
+  I.PB(V()); Ve.PB(V()); Va.PB(V());
+  for (i = 0; i < numv; i++) {
+    I[0].PB(0);  // conjunto vacio
+    Ve[0].PB(0); // conjunto vacio
+    Va[0].PB(1); // contiene todos
+  } 
+  while(true) {
+    switch(bandera) {
+    case 2: // paso 2
+      v.PB(evalua(Va[k]));
+      I.PB(V(I[k].begin(), I[k].end()));
+      Va.PB(V(Va[k].begin(), Va[k].end()));
+      Ve.PB(V(Ve[k].begin(), Ve[k].end()));
+      aux = graf[v[k]].size();
+      I[k+1][v[k]] = 1; Va[k+1][v[k]] = 0;      
+      for (i = 0; i < aux; i++) {
+        j = graf[v[k]][i]; Ve[k+1][j] = Va[k+1][j] = 0;
+      }
+      k = k + 1; bandera = 3; break;
+      /**********************************************/          
+    case 3: // paso 3
+      for (i = 0, bandera = 4; i < numv; i++) {
+        if (Ve[k][i] == 1) {
+          aux = graf[i].size();
+          for (j = 0; j < aux; j++)
+          if (Va[k][graf[i][j]] == 1) 
+            break;
+          if (j == aux) { i = numv; bandera = 5; }
+        }
+      } break;
+      /**********************************************/
+
+    case 4: // paso 4
+      if (evalua(Ve[k]) == -1 && evalua(Va[k]) == -1) {
+        for (int n = 0; n < numv; n++)
+          if (I[k][n] == 1) cout<< n << " ";
+        cout << endl;
+        if (k > kmax) kmax = k;
+        bandera = 5;
+      }
+      else bandera = 2; // ir a paso 2
+      break;
+      /**********************************************/
+    case 5: // paso 5
+      k = k - 1; v.pop_back(); I[k].clear();
+      I[k].assign(I[k+1].begin(), I[k+1].end());
+      I[k][v[k]] = 0; I.pop_back(); Ve.pop_back();
+      Va.pop_back(); Ve[k][v[k]] = 1; Va[k][v[k]] = 0;
+      if (k == 0)   {
+        if (evalua(Va[0]) == -1) return;
+        bandera = 2; // ir a paso 2
+      }
+      else bandera = 3; // ir a paso 3
+      break;
+    }
+  }     
+}
+
+int main() {
+  U idx, i; stringstream ss; string linea;
+  while (cin >> numv) {
+    getline(cin, linea);
+    for (i = 0; i < numv; i++) { // Lectura del grafo
+      // vertices adjacentes al i-esimo vertice
+      vector<U> bb; graf.PB(bb);
+      getline(cin, linea);
+      ss << linea;
+      while (ss >> idx) graf[i].PB(idx);
+      ss.clear();
+    }
+    // Llamada al algoritmo
+    kmax = 0;
+    cout << "Conjuntos independientes: "<< endl;
+    if (numv > 0)
+      Bron_i_Kerbosch();
+
+    cout << "kmax: " << kmax << endl;
+    // Limpieza variables
+    for (i = 0; i < numv; i++) graf[i].clear();
+    graf.clear();
+  }
+}
+\end{verbatim}
+
+\subsection{Floyd-Warshall (camino mínimo entre todos nodos)}
+\begin{verbatim}
+// A: matriz n*n de adyacencia con costes
+// ausencia de arista representada por un numero grande
+for (int k = 0; k < n; k++)
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+      A[i][j] = MIN(A[i][j], A[i][k] + A[k][j]);
+\end{verbatim}
+
+\subsection{Bellman-Ford (Dijkstra con costes negativos)}
+\begin{verbatim}
+typedef pair<pair<int,int>,int> P; // par de nodos + coste
+int N;                             // numero de nodos
+vector<P> v;                       // representacion aristas
+
+int bellmanford(int a, int b) {
+  vector<int> d(N, 1000000000);
+  d[a] = 0;
+  for (int i = 1; i < N; i++)
+    for (int j = 0; j < (int)v.SZ; j++)
+      if (d[v[j].X.X] < 1000000000 && 
+      d[v[j].X.X] + v[j].Y < d[v[j].X.Y])
+        d[v[j].X.Y] = d[v[j].X.X] + v[j].Y;
+  for (int j = 0; j < (int)v.SZ; j++)
+    if (d[v[j].X.X] < 1000000000 &&
+    d[v[j].X.X] + v[j].Y < d[v[j].X.Y])
+      return -1000000000; // existe ciclo negativo
+  return d[b];
+}
+\end{verbatim}
+
+\subsection{A*}
+\begin{verbatim}
+int N = 1000;                    // numero de nodos
+typedef set<pair<int,int> > S;  // cola de prioridad
+vector<pair<int,int> > V[1000];  // lista de adyacencia (coste, vecino)
+
+int heuristic(int from, int to) { // heurística de "from" a "to"
+  return 0;
+}
+
+int Astar(int from, int to) {
+
+  set<int> open;        // lista abierta de nodos activos
+  set<int> closed;      // lista cerrada de nodos ya procesados
+  map<int,int> fscore;  // coste real + heurística
+  map<int,int> gscore;  // coste real
+  S queue;              // cola de prioridad (coste, nodo)
+  map<int,int> parent;  // para reconstruir el camino
+  
+  open.insert( from );
+  fscore[ from ] = heuristic( from, to );
+  gscore[ from ] = 0;
+  queue.insert( make_pair( fscore[ from ], from ) );
+  
+  while( closed.find( to ) == closed.end() ){
+    
+    pair<int,int> p = *queue.begin();
+    open.erase( p.second );
+    closed.insert( p.second );
+    queue.erase( queue.begin() );
+    
+    for( unsigned i = 0; i < V[ p.second ].size(); ++i ){
+      
+      int neigh = V[ p.second ][i].second;
+      int g = gscore[ p.second ] + V[ p.second ][i].first;
+      int f = g + heuristic( neigh, to );
+      
+      if( (open.find( neigh ) == open.end() && closed.find( neigh ) == closed.end() ) || f < fscore[ neigh ] ){
+        
+        open.erase( neigh );
+        queue.erase( make_pair( fscore[ neigh ], neigh ) );
+        parent[ neigh ] = p.second;
+        fscore[ neigh ] = f;
+        gscore[ neigh ] = g;
+        open.insert( neigh );
+        queue.insert( make_pair( fscore[ neigh ], neigh ) );
+        
+      }
+    }
+  }
+  
+  // reconstruir camino por "parent" si hace falta
+  
+  int actual = to;
+  
+  list<int> l;
+  list<int>::iterator il;
+  
+  while( parent[ actual ] != from ){
+    l.push_front( actual );
+    actual = parent[ actual ];
+  }
+  
+  l.push_front( actual );
+  l.push_front( parent[ actual ] );
+  
+  cout<< "Path = [";
+  
+  for( il = l.begin(); il != l.end(); il++){
+    
+    if( *il == to ){
+      cout<< *il<<"] with cost ";
+      break;
+    }
+    cout<< *il<<", ";
+  }
+  return gscore[ to ];
+}
+int main(){
+  N = 3;
+  V[0].push_back( make_pair( 1, 1 ) );
+  V[1].push_back( make_pair( 2, 2 ) );
+  cout<< Astar( 0, 2 ) <<endl;
+  return 0;
+}
+\end{verbatim}
+
+\subsection{[STU] Maximum Bipartite Matching}
+\begin{verbatim}
+// This code performs maximum bipartite matching.
+//
+// Running time: O(|E| |V|) -- often much faster in practice
+//
+//   INPUT: w[i][j] = edge between row node i and column node j
+//   OUTPUT: mr[i] = assignment for row node i, -1 if unassigned
+//           mc[j] = assignment for column node j, -1 if unassigned
+//           function returns number of matches made
+
+#include <vector>
+
+using namespace std;
+
+typedef vector<int> VI;
+typedef vector<VI> VVI;
+
+bool FindMatch(int i, const VVI &w, VI &mr, VI &mc, VI &seen) {
+  for (int j = 0; j < w[i].size(); j++) {
+    if (w[i][j] && !seen[j]) {
+      seen[j] = true;
+      if (mc[j] < 0 || FindMatch(mc[j], w, mr, mc, seen)) {
+        mr[i] = j;
+        mc[j] = i;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+int BipartiteMatching(const VVI &w, VI &mr, VI &mc) {
+  mr = VI(w.size(), -1);
+  mc = VI(w[0].size(), -1);
+  
+  int ct = 0;
+  for (int i = 0; i < w.size(); i++) {
+    VI seen(w[0].size());
+    if (FindMatch(i, w, mr, mc, seen)) ct++;
+  }
+  return ct;
+}
+\end{verbatim}
+
+\section{Programación Dinámica}
+\subsection{Ejemplo Moneda}
+\begin{verbatim}
+int N = 8;                // numero de monedas
+int m[] = {1,2,5,10,20,50,100,200}; // monedas
+
+int main() {
+  int C;         // monto C <= 100000
+  cin >> C;
+  int A[100001]; // vector de resultados
+  A[0] = 0;
+  for (int i = 1; i <= C; i++) {
+    A[i] = 1000000;
+    for (int j = 0; j < N && m[j] <= i; j++)
+      A[i] = MIN(A[i], A[i-m[j]] + 1);
+  }
+  cout << A[C] << endl;
+}
+\end{verbatim}
+
+\subsection{Ejemplo Mochila}
+\begin{verbatim}
+int N = 8;        // numero de objetos N <= 1000
+int v[] = {1,6,7,1,8,3,7,5}; // valor de objetos
+int p[] = {5,3,7,1,8,2,7,3}; // peso de objetos
+
+int main() {
+  int C;             // capacidad C <= 1000
+  cin >> C;
+  int A[1001][1001]; // matriz de resultados
+  for (int j = 0; j <= C; j++)
+    A[0][j] = 0;
+  for (int i = 1; i <= N; i++) {
+    A[i][0] = 0;
+    for (int j = 1; j <= C; j++) {
+      A[i][j] = A[i-1][j];
+      if (p[i-1] <= j) {
+    int r = A[i-1][j-p[i-1]] + v[i-1];
+        A[i][j] = MAX(A[i][j], r);
+      }
+    }
+  }
+  cout << A[N][C] << endl;
+}
+\end{verbatim}
+
+\section{Geometría}
+\subsection{Convex Hull}
+\begin{verbatim}
+typedef int T;     // posiblemente cambiar a double
+typedef pair<T,T> P;
+T xp(P p, P q, P r) {
+  return (q.X-p.X)*(r.Y-p.Y) - (r.X-p.X)*(q.Y-p.Y);
+}
+struct Vect {
+  P p, q;  T dist;
+  Vect(P &a, P &b) {
+    p = a;  q = b;
+    dist = SQ(a.X - b.X) + SQ(a.Y - b.Y);
+  }
+  bool operator<(const Vect &v) const {
+    T t = xp(p, q, v.p);
+    return t < 0 || t == 0 && dist < v.dist;
+  }
+};
+
+vector<P> convexhull(vector<P> v) { // v.SZ >= 2
+  sort(v.begin(), v.end());
+  vector<Vect> u;
+  for (int i = 1; i < (int)v.SZ; i++)
+    u.PB(Vect(v[i], v[0]));
+  sort(u.begin(), u.end());
+  vector<P> w(v.SZ, v[0]);
+  int j = 1;  w[1] = u[0].p;
+  for (int i = 1; i < (int)u.SZ; i++) {
+    T t = xp(w[j-1], w[j], u[i].p);
+    for (j--; t < 0 && j > 0; j--)
+      t = xp(w[j-1], w[j], u[i].p);
+    j += t > 0 ? 2 : 1;
+    w[j] = u[i].p;
+  }
+  w.resize(j+1);
+  return w;
+}
+
+int main() {
+  vector<P> v;
+  v.PB(MP(0, 1));
+  v.PB(MP(1, 2));
+  v.PB(MP(3, 2));
+  v.PB(MP(2, 1));
+  v.PB(MP(3, 1));
+  v.PB(MP(6, 3));
+  v.PB(MP(7, 0));
+  vector<P> w = convexhull(v);
+} // resultado: (0,1) (7,0) (6,3) (1,2)
+\end{verbatim}
+
+\subsection{Intersecciones de figuras}
+\begin{verbatim}
+typedef double T; // dejar incluso cuando puntos son int
+
+class Point {
+public:
+  T x, y; // punto definido por coordinado (x,y)
+  Point() { x = DBL_MAX; y = DBL_MAX; }
+  Point(T a, T b) { x = a; y = b; }
+  double distance(Point p) { // distancia entre dos puntos
+    return sqrt(SQ(p.x - x) + SQ(p.y - y));
+  }
+  Point operator + (const Point &p)  const { return Point(x+p.x, y+p.y); }
+  Point operator - (const Point &p)  const { return Point(x-p.x, y-p.y); }
+  Point operator * (double c)     const { return Point(x*c,   y*c  ); }
+  Point operator / (double c)     const { return Point(x/c,   y/c  ); }
+};
+
+class Line {
+public:
+  Point p, q; // linea definida por dos puntos DIFERENTES
+  Line(Point a, Point b) { p = a; q = b; }
+  double distance(Point r) { // distancia de linea a punto
+    return r.distance(projection(r));
+  }
+  // projeccion de punto sobre linea
+  Point projection(Point r) {
+    if (p.y == q.y)
+      return isect(Line(r, Point(r.x, r.y + 1)));
+    T z = (q.x - p.x)/(q.y - p.y);
+    return isect(Line(r, Point(r.x + 1,r.y - z)));
+  }
+  Point isect(Line l) { // interseccion entre dos lineas
+    if (p.x == q.x) {
+      if (l.p.x == l.q.x) // lineas son paralelas
+    return Point();
+      double a = (l.q.y - l.p.y)/(l.q.x - l.p.x);
+      return Point(p.x, l.p.y + a*(p.x - l.p.x));
+    }
+    else if (l.p.x == l.q.x)
+      return l.isect(*this);
+    double a1 = (q.y - p.y)/(q.x - p.x);
+    double a2 = (l.q.y - l.p.y)/(l.q.x - l.p.x);
+    if (a1 == a2) // lines are parallel
+      return Point();
+    double x = (l.p.y - p.y + p.x*a1 - l.p.x*a2)/(a1-a2);
+    return Point(x, p.y + (x - p.x)*a1);
+  }
+};
+
+class Circle {
+public:
+  Point p; // punto central del circulo
+  T r;     // radio del circulo
+  Circle(Point a, T b) { p = a; r = b; }
+  bool contains(Point q) { // punto dentro del circulo
+    return p.distance(q) <= r;
+  }
+  // UNA interseccion entre linea and circulo
+  Point isect(Line l) {
+    Point q = l.projection(p);
+    double d = p.distance(q);
+    if (d > r) // la linea no intersecta el circulo
+      return Point();
+    if (l.p.x == l.q.x) {
+      double dy = sqrt(SQ(r) - SQ(d));
+      return Point(q.x, q.y + dy);
+      // otro punto se obtiene por q.y - dy
+    }
+    double a = (l.q.y - l.p.y)/(l.q.x - l.p.x);
+    double x = q.x - p.x;
+    double y = q.y - p.y;
+    double n = SQ(a) + 1;
+    double s = sqrt((SQ(r) - SQ(d))/n);
+    double dx = (x + a*y)/n + s;
+    // otro punto se obtiene por (x + a*y)/n - s
+    return Point(q.x + dx, q.y + a*dx);
+  }
+};
+
+class Rect {
+public:
+  Point p, q; // rect definido por dos puntos DIFERENTES
+  Rect(Point a, Point b) {
+    p = Point(min(a.x, b.x), min(a.y, b.y));
+    q = Point(max(a.x, b.x), max(a.y, b.y));
+  }
+  bool contains(Point r) { // punto dentro del rect
+    return r.x>=p.x && r.x<=q.x && r.y>=p.y && r.y<=q.y;
+  }
+
+  // UNA interseccion entre rectangulo y linea
+  Point isect(Line l) {
+    Point r = l.isect(Line(p, Point(q.x, p.y)));
+    if (r.x >= p.x && r.x <= q.x)
+      return r;
+    r = l.isect(Line(p, Point(p.x, q.y)));
+    if (r.y >= p.y && r.y <= q.y)
+      return r;
+    r = l.isect(Line(Point(q.x, p.y), q));
+    if (r.y >= p.y && r.y <= q.y)
+      return r;
+    r = l.isect(Line(Point(p.x, q.y), q));
+    if (r.x >= p.x && r.x <= q.x)
+      return r;
+    return Point();
+  }
+  // UNA interseccion entre rectangulo y circulo
+  Point isect(Circle c) {
+    Point r = c.isect(Line(p, Point(q.x, p.y)));
+    if (r.x >= p.x && r.x <= q.x)
+      return r;
+    r = c.isect(Line(p, Point(p.x, q.y)));
+    if (r.y >= p.y && r.y <= q.y)
+      return r;
+    r = c.isect(Line(Point(q.x, p.y), q));
+    if (r.y >= p.y && r.y <= q.y)
+      return r;
+    r = c.isect(Line(Point(p.x, q.y), q));
+    if (r.x >= p.x && r.x <= q.x)
+      return r;
+    return Point();
+  }
+};
+
+int main() {
+  Point p(0, 0);
+  Point q(2, 2);
+  Point s(0, 2);
+  Line l(p, q);
+  Circle c(s, 2);
+  Rect r(p, q);
+  Point t = c.isect(l);
+  Point u = r.isect(c);
+}
+\end{verbatim}
+\subsection{[STU] Puntos y polígonos}
+Determine if point is in a possibly non-convex polygon (by William
+Randolph Franklin); returns 1 for strictly interior points, 0 for
+strictly exterior points, and 0 or 1 for the remaining points.
+Note that it is possible to convert this into an *exact* test using
+integer arithmetic by taking care of the division appropriately
+(making sure to deal with signs properly) and then by writing exact
+tests for checking point on polygon boundary
+\begin{verbatim}
+bool PointInPolygon(const vector<PT> &p, PT q) {
+  bool c = 0;
+  for (int i = 0; i < p.size(); i++){
+    int j = (i+1)%p.size();
+    if ((p[i].y <= q.y && q.y < p[j].y || 
+      p[j].y <= q.y && q.y < p[i].y) &&
+      q.x < p[i].x + (p[j].x - p[i].x) * (q.y - p[i].y) / (p[j].y - p[i].y))
+      c = !c;
+  }
+  return c;
+}
+
+// determine if point is on the boundary of a polygon
+bool PointOnPolygon(const vector<PT> &p, PT q) {
+  for (int i = 0; i < p.size(); i++)
+    if (dist2(ProjectPointSegment(p[i], p[(i+1)%p.size()], q), q) < EPS)
+      return true;
+    return false;
+}
+\end{verbatim}
+
+\section{Secuencias}
+\subsection{Ejemplo partición de vector}
+\begin{verbatim}
+bool IsOdd(int i) {return (i%2==1);}
+vector<int>::iterator bound = partition(myvector.begin(), myvector.end(), IsOdd);
+\end{verbatim}
+
+\subsection{Búsqueda Binaria}
+Utiliza la función \verb-binary\_search- en \verb-algorithm-. Si la tienes que
+implementar por algo:
+\begin{verbatim}
+// devuelve el i mas pequeno tal que t <= v[i]
+// si no existe tal i, devuelve v.SZ
+template<typename T> int bb(T t, vector<T> &v) {
+  int a = 0, b = v.SZ;
+  while (a < b) {
+    int m = (a + b)/2;
+    if (v[m] < t) a = m+1;  else b = m;
+  }
+  return a;
+}
+\end{verbatim}
+\subsection{Búsqueda Ternaria}
+\begin{verbatim}
+double E = 0.0000001;
+while (1) {
+  double dist = R - L;
+  if (fabs(dist) < E) break;
+  double leftThird = L + dist / 3;
+  double rightThird = R - dist / 3;
+  if (f(leftThird) < f(rightThird))
+    R = rightThird;
+  else
+    L = leftThird;
+}
+\end{verbatim}
+
+\subsection{[STU] Suffix Array}
+Suffix array construction in $O(L \log^2 L)$ time.
+Routine for computing the length of the longest common
+prefix of any two suffixes in $O(\log L)$ time.
+\begin{verbatim}
+// INPUT:   string s
+// OUTPUT:  array suffix[] such that suffix[i] = index (from 0 to L-1)
+//          of substring s[i...L-1] in the list of sorted suffixes.
+//          That is, if we take the inverse of the permutation suffix[],
+//          we get the actual suffix array.
+
+#include <vector>
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct SuffixArray {
+  const int L;
+  string s;
+  vector<vector<int> > P;
+  vector<pair<pair<int,int>,int> > M;
+
+  SuffixArray(const string &s) : L(s.length()), s(s), P(1, vector<int>(L, 0)), M(L) {
+    for (int i = 0; i < L; i++) P[0][i] = int(s[i]);
+    for (int skip = 1, level = 1; skip < L; skip *= 2, level++) {
+      P.push_back(vector<int>(L, 0));
+      for (int i = 0; i < L; i++) 
+  M[i] = make_pair(make_pair(P[level-1][i], i + skip < L ? P[level-1][i + skip] : -1000), i);
+      sort(M.begin(), M.end());
+      for (int i = 0; i < L; i++) 
+  P[level][M[i].second] = (i > 0 && M[i].first == M[i-1].first) ? P[level][M[i-1].second] : i;
+    }    
+  }
+
+  vector<int> GetSuffixArray() { return P.back(); }
+
+  // returns the length of the longest common prefix of s[i...L-1] and s[j...L-1]
+  int LongestCommonPrefix(int i, int j) {
+    int len = 0;
+    if (i == j) return L - i;
+    for (int k = P.size() - 1; k >= 0 && i < L && j < L; k--) {
+      if (P[k][i] == P[k][j]) {
+  i += 1 << k;
+  j += 1 << k;
+  len += 1 << k;
+      }
+    }
+    return len;
+  }
+};
+
+int main() {
+
+  // bobocel is the 0'th suffix
+  //  obocel is the 5'th suffix
+  //   bocel is the 1'st suffix
+  //    ocel is the 6'th suffix
+  //     cel is the 2'nd suffix
+  //      el is the 3'rd suffix
+  //       l is the 4'th suffix
+  SuffixArray suffix("bobocel");
+  vector<int> v = suffix.GetSuffixArray();
+  
+  // Expected output: 0 5 1 6 2 3 4
+  //                  2
+  for (int i = 0; i < v.size(); i++) cout << v[i] << " ";
+  cout << endl;
+  cout << suffix.LongestCommonPrefix(0, 2) << endl;
+}
+\end{verbatim}
+
+\subsection{[STU] Knuth-Morris-Pratt (búsqueda substrings)}
+Searches for the string w in the string s (of length k). Returns the
+0-based index of the first match (k if no match is found). Algorithm
+runs in $O(k)$ time.
+\begin{verbatim}
+typedef vector<int> VI;
+
+void buildTable(string& w, VI& t) {
+  t = VI(w.length());  
+  int i = 2, j = 0;
+  t[0] = -1; t[1] = 0;
+  
+  while(i < w.length()) {
+    if(w[i-1] == w[j]) { t[i] = j+1; i++; j++; }
+    else if(j > 0) j = t[j];
+    else { t[i] = 0; i++; }
+  }
+}
+
+int KMP(string& s, string& w) {
+  int m = 0, i = 0;
+  VI t;
+  
+  buildTable(w, t);  
+  while(m+i < s.length()) {
+    if(w[i] == s[m+i]) {
+      i++;
+      if(i == w.length()) return m;
+    }
+    else {
+      m += i-t[i];
+      if(i > 0) i = t[i];
+    }
+  }  
+}
+\end{verbatim}
+\end{document}
