@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdio>
+#include <vector>
+#include <utility>
 
 using namespace std;
 
@@ -8,41 +10,63 @@ using namespace std;
 #define X first
 #define Y second
 #define MP make_pair
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-int N, S;
-int adjmat[100][100];
+int N;
+vector<int> adjlists[100];
+pair<int, int> cache[100];
 
-int main()
+pair<int, int>
+get_longest_path(int from)
 {
-	int p, q;
+	if(cache[from].Y || cache[from].X) return cache[from];
+	if(adjlists[from].SZ == 0) {
+		cache[from] = MP(0, from);
+		return MP(0, from);
+	}
+
+	pair<int, int> rec = MP(-1, 0);
+	for(int i=0; i<(int)adjlists[from].SZ; i++) {
+		pair<int, int> res = get_longest_path(adjlists[from][i]);
+		if(res.X > rec.X) rec = res;
+	}
+	rec.X++;
+	cache[from] = rec;
+	return rec;
+}
+
+int
+main()
+{
+	int S, p, q;
+	pair<int, int> res;
 
 	cin >> N;
-	for(int ncase=1;;ncase++) {
+	for(int j=1;;j++) {
+
+		fill(cache, cache+N, MP(0, 0));
+		for(int i=0; i<N; i++)
+			adjlists[i].clear();
+
 		cin >> S;
 		S-=1;
-		for(int j=0; j<N; j++)
-			for(int i=0; i<N; i++)
-				adjmat[j][i] = 1000000000;
 		for(;;) {
 			cin >> p >> q;
 			if(p==0 && q==0) break;
-			adjmat[p-1][q-1] = -1;
+			adjlists[p-1].PB(q-1);
 		}
-		for(int k=0; k<N; k++)
-			for(int j=0; j<N; j++)
-				for(int i=0; i<N; i++)
-					adjmat[i][j] = MIN(adjmat[i][j], adjmat[i][k] + adjmat[k][j]);
-		int rec = 0;
-		int res;
-		for(int i=0; i<N; i++) {
-			if(adjmat[S][i] < rec) {
-				rec = adjmat[S][i];
-				res = i;
-			}
+/*		for(int i=0; i<N; i++) {
+			printf("%d - ", i);
+			for(int k=0; k<(int)adjlists[i].SZ; k++)
+				printf("%d ", adjlists[i][k]);
+			putchar('\n');
 		}
+		putchar('\n'); */
+		res = get_longest_path(S);
 		printf("Case %d: The longest path from %d has length %d, finishing at %d.\n",
-				ncase, S+1, -rec, res+1);
+				j, S+1, res.X, res.Y+1);
+
+/*		for(int i=0; i<N; i++)
+			printf("%d: %d %d\n", i+1, cache[i].X, cache[i].Y+1); */
 
 		cin >> N;
 		if(N==0) return 0;
