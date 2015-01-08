@@ -18,16 +18,17 @@ pair<int, int> cache[100];
 pair<int, int>
 get_longest_path(int from)
 {
-	if(cache[from].Y || cache[from].X) return cache[from];
+	if(cache[from].Y >= 0 && cache[from].X >= 0) return cache[from];
 	if(adjlists[from].SZ == 0) {
 		cache[from] = MP(0, from);
-		return MP(0, from);
+		return cache[from];
 	}
 
-	pair<int, int> rec = MP(-1, 0);
+	pair<int, int> rec = MP(-1, -1);
 	for(int i=0; i<(int)adjlists[from].SZ; i++) {
 		pair<int, int> res = get_longest_path(adjlists[from][i]);
 		if(res.X > rec.X) rec = res;
+		if(res.X == rec.X && res.X < rec.X) rec = res;
 	}
 	rec.X++;
 	cache[from] = rec;
@@ -43,7 +44,7 @@ main()
 	cin >> N;
 	for(int j=1;;j++) {
 
-		fill(cache, cache+N, MP(0, 0));
+		fill(cache, cache+N, MP(-1, -1));
 		for(int i=0; i<N; i++)
 			adjlists[i].clear();
 
