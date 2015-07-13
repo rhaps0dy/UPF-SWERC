@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <utility>
 #include <cstdio>
+#include <cstdlib>
 
 #define X first
 #define Y second
 #define MP make_pair
+#define PB push_back
+#define SZ size()
 
 #define MAX_STATE 16777217
 #define NUM_GRAV 4
@@ -195,9 +198,6 @@ transition(Board &b, State s, Gravity g)
 
 void findNumStates(State s)
 {
-    ++N;
-    V[s] = true;
-
     for (int g = 0; g < NUM_GRAV; ++g)
     {
         State sp = 0;
@@ -223,7 +223,9 @@ void findNumStates(State s)
         
         if (!V[sp])
         {
-           findNumStates(sp);
+            V[sp] = true;
+            ++N;
+            findNumStates(sp);
         }
     }
 }
@@ -320,3 +322,54 @@ cout << "\n";
 
     return 0;
 }
+
+/* void print_state(Board &b, State s) {
+    int x[4], y[4];
+    stateToCoords(x, y, s);
+    for(int j=0; j<8; j++) {
+        for(int i=0; i<8; i++) {
+            if(find(b.begin(), b.end(), MP(i, j)) != b.end()) {
+                cout << "#";
+                continue;
+            }
+            int k;
+            for(k=0; k<4; k++) {
+                if((i == x[k] || i == x[k] + 1) && (j == y[k] || j == y[k] + 1)) {
+                    cout << (char)('A' + k);
+                    break;
+                }
+            }
+            if(k==4)
+                cout << ".";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+int main()
+{
+    Board b;
+    State s;
+    int x[4] = {0, 5, 2, 6};
+    int y[4] = {6, 4, 3, 1};
+
+    for(int j=0; j<8; j++)
+        for(int i=0; i<8; i++) {
+            int k;
+            for(k=0; k<4; k++)
+                if((i == x[k] || i == x[k] + 1) && (j == y[k] || j == y[k] + 1))
+                    break; 
+            if(k == 4 && ! ((i+j) % 3))
+                b.PB(MP(i, j));
+        }
+    s = coordsToState(x, y);
+    print_state(b, s);
+    Board horizBoard(b);
+    Board vertBoard(b);
+    sort(horizBoard.begin(), horizBoard.end());
+    sort(vertBoard.begin(), vertBoard.end(), sort_pred);
+    for(int i=0; i<4; i++)
+        print_state(b, transition(i == 1 || i == 2 ? horizBoard : vertBoard , s, (Gravity)i));
+    return 0;
+} */
