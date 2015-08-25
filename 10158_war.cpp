@@ -52,7 +52,7 @@ setFriends(int a, int b)
     }
 
     merge(a, b);
-    merge(find(enemies[a]), find(enemies[b])); 
+    merge(enemies[a] = find(enemies[a]), find(enemies[b]));
     return NOPRINT;
 }
 
@@ -71,13 +71,15 @@ setEnemies(int a, int b)
 	return NOPRINT;
     }
 
-    if(enemies[a] != -1) {
-	merge(find(enemies[a]), b);
+    // a has enemies for sure
+    if(enemies[b] == -1) {
+	merge((enemies[a] = find(enemies[a])), b);
 	return NOPRINT;
     }
 
-    if(enemies[b] != -1) {
-	merge(find(enemies[b]), a);
+    // b has enemies for sure if we're here
+    if(enemies[a] == -1) {
+	merge((enemies[b] = find(enemies[b])), a);
 	return NOPRINT;
     }
 
@@ -93,10 +95,9 @@ areEnemies(int a, int b)
 {
     a = find(a);
     b = find(b);
-    if(enemies[a] == -1 || enemies[b] == -1)
-	return 0;
-
-    return find(enemies[a]) == b ? 1 : 0;
+    if(enemies[a] == b)
+	return 1;
+    return 0;
 }
 
 static int
