@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+# We have two takes to the same algorithm solving pablito:
+
+# one with complexity n - max(amax, bmax), that iterates linearly
+
+# one with complexity log2(n - max(amax, bmax)) * (amax + bmax) ^ 3, that does
+# matrix multiplication to advance state
+
+import math
+
+def time_taken(amax, bmax):
+    linear = 2**30 - max(amax, bmax)
+    matrix = math.log2(linear) * (amax+bmax)**3
+    return min(linear, matrix)
