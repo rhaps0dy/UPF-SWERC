@@ -40,28 +40,17 @@ int main()
 	    a = e_vec_x / e_vec_y,
 	    b = W - a*H - x,
 	    s = sin_mpe / mu,
-	    aa = a*a,
-	    disc = s*(1 - s);
-
-	if(disc < 0) {
+	    ss = 1/(s*s) - 1;
+	if(ss < 0) {
 	    cout << "Impossible" << endl;
 	    continue;
 	}
+	ss = sqrt(ss);
 
-	disc = b * sqrt(disc);
-	cout << disc << endl;
+	double h = ss*b / (1 - a*ss);
 
-	double
-	    minus_b = a * b * (1 - s),
-	    divider = s + aa * s + aa,
-	    h1 = (minus_b + disc) / divider,
-	    h2 = (minus_b - disc) / divider;
-
-	cout << "h1: " << divider << " h2: " << disc << endl;
-	if(h1 > 0 && h1 <= H) {
-	    cout << h1 << endl;
-	} else if(h2 > 0 && h2 <= H) {
-	    cout << h2 << endl;
+	if(h > 0 && h <= H) {
+	    cout << h << endl;
 	} else {
 	    cout << "Impossible" << endl;
 	}
