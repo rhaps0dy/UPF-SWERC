@@ -5,6 +5,7 @@
 #include <climits>
 #include <queue>
 #include <set>
+#include <string>
 
 #define X first
 #define Y second
@@ -30,8 +31,8 @@ typedef struct Node
 	int _d; // depth
 	int _t; // time
 	int _c; // cost (money)
-	
-	Node(int p, int d, int c, int t): _p(p), _d(d), _t(t), _c(c)
+
+	Node(int p, int d, int c, int t) : _p(p), _d(d), _t(t), _c(c)
 	{
 	}
 
@@ -47,9 +48,14 @@ struct node_cmp
 	{
 		if (n1._c == n2._c)
 		{
-			return n1._p < n2._p;			
+			if (n1._t == n2._t)
+			{
+				return n1._p < n2._p;
+			}
+
+			return n1._t < n2._t;
 		}
-		
+
 		return n1._c < n2._c;
 	}
 };
@@ -68,9 +74,9 @@ int Q = 0; // num queries
 pair<int, int> dijkstra(int s, int t, int d)
 {
 	S m;                          // cola de prioridad
-	vector<V> z(N, 1000000000);   // distancias iniciales
-	z[s] = 0;                     // distancia a s es 0
-	
+	vector< pair<int, int> > z(N, make_pair(1000000000, 1000000000));   // distancias iniciales
+	z[s].first = 0; z[s].second = 0;  // distancia a s es 0
+
 	Node node(s, -1, 0, 0);
 	m.insert(node);           // insertar (0,s) en m
 
@@ -78,85 +84,86 @@ pair<int, int> dijkstra(int s, int t, int d)
 	{
 		Node p = *m.begin();   // p=(coste,nodo) con menor coste
 		m.erase(m.begin()); // elimina este par de m
-		
+
 		if (p._p == t)
 		{
 			return make_pair(p._c, p._t); // cuando nodo es t, acaba
 		}
-		
+
 		if (p._d > d)
 		{
 			continue;
 		}
-		
+
 		// para cada nodo adjacente al nodo p.Y
 		for (int i = 0; i < (int)A[p._p].SZ; i++)
 		{
 			// q = (coste hasta nodo adjacente, nodo adjacente)
 			Node q(A[p._p][i].Y, p._d + 1, p._c + A[p._p][i].X.X, p._t + A[p._p][i].X.Y);
-			
+
 			// si q.X es la menor distancia hasta q.Y
-			if (q._c <= z[q._p])
+			if (q._c <= z[q._p].first)
 			{
-				Node toerase(q._p, 0, z[q._p], 0); // same cost 0 + z[q._p] = z[q._p]				
-				m.erase(toerase); 				   // borrar anterior
-				m.insert(q);              		   // insertar q
-				z[q._p] = q._c;                // actualizar distancia
+				Node toerase(q._p, 0, z[q._p].first, z[q._p].second); // same cost 0 + z[q._p] = z[q._p]				
+				m.erase(toerase); 									 // borrar anterior
+				m.insert(q);              							// insertar q
+				z[q._p].first = q._c;								// actualizar distancia
+				z[q._p].second = q._t;
 			}
 		}
 	}
-	
+
 	return make_pair(-1, -1);
 }
 
 int main()
 {
 	bool firstcase = true;
-	
+
 	while (cin >> PL >> F >> Q)
 	{
 		if (!firstcase)
 		{
 			cout << ".\n";
 		}
-		
+
 		firstcase = false;
-		
+
 		map<string, int> planets;
 		string planet = "";
-	
+
 		for (int i = 0; i < PL; ++i)
 		{
 			cin >> planet;
 			planets[planet] = i;
 			A[i].clear();
 		}
-		
+
 		string p1 = "";
 		string p2 = "";
 		int c = 0;
 		int t = 0;
-		
+
 		for (int i = 0; i < F; ++i)
 		{
 			cin >> p1 >> p2 >> c >> t;
 			A[planets[p1]].push_back(make_pair(make_pair(c, t), planets[p2]));
 		}
-		
+
 		string si = "";
 		cin >> si;
-		
+
 		string sf = "";
 		int n = 0;
-		
+
 		N = PL;
-		
+
 		for (int i = 0; i < Q; ++i)
 		{
 			cin >> sf >> n;
-			
+
 			pair<int, int> accost = dijkstra(planets[si], planets[sf], n);
-			
+
 			if (accost.X < 0)
 			{
 				cout << "* *\n";
