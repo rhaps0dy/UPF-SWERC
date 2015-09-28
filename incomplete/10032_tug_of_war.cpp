@@ -27,24 +27,26 @@ n_make_weight[MAX_PEOPLE_MIN_SET];
 
 static void
 solve(vector<int> &people) {
-    memset(n_make_weight, 0, sizeof(n_make_weight));
+    memset(n_make_weight, 0, MAX_PEOPLE_MIN_SET*sizeof(long long));
     int n_people = people.size();
-    int sum;
+    int sum = 0;
     for(int i=0; i<n_people; i++)
-			sum += people[i];
-    n_make_weight[0] = 1;
+    {
+        n_make_weight[people[i]] = 1;
+        sum += people[i];
+    }
     int sum_2 = sum/2;
-    for(int j=0; j<sum_2; j++) {
+    for(int j=0; j<=sum_2; j++) {
 			for(int i=0; i<n_people; i++) {
 					int index = j-people[i];
-					if(index >= 0)
+					if(index > 0)
 				n_make_weight[j] |= n_make_weight[index] << 1;
 			}
 		}
-    for(int i=sum_2-1; i>0; i--) {
+    for(int i=sum_2; i>0; i--) {
 			if(n_make_weight[i] | (0x3 << (n_people/2 - 1))) {
 				g1 = i ;
-				g2 = sum - i ;
+				g2 = sum_2 - i ;
 			}
     }
 }
@@ -61,7 +63,7 @@ int main() {
 					people.push_back(w);
 			solve(people);
 			cout<<g1<<" "<<g2<<endl;
-			
+
 		}
     return 0;
 }
