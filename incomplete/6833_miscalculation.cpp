@@ -68,7 +68,7 @@ int computePriorize()
 		num += N[0];
 	}	
 	
-	for (int i = 1; i < NN; ++i)
+	for (int i = 1; i < NN-1; ++i)
 	{
 		if (O[i-1] && O[i])
 		{
