@@ -11,16 +11,32 @@ int stores[OPERAS];
 double distances[OPERAS][OPERAS];
 double adj_mat[STORES][STORES];
 
-static int subset[OPERAS];
-int *next_subset(int k, int n) {
-	subset[0]++;
-	int i=0;
-	while(subset[i] == n && i<k) {
+static int subset[OPERAS+1]; // k <= N
+void init_subset(int k, int n) {
+	int i;
+	for(i=0; i<k; i++)
 		subset[i] = i;
-		i++;
-		subset[i]++;
+	subset[k] = n;
+}
+bool next_subset(int k, int n) {
+	int i;
+
+	for(i=1; i<k; i++) {
+		if(subset[k-i] == n-i) {
+			val prev = subset[k-i-i] + 2;
+			if(prev < subset[k-i+1]-1)
+				subset[k-1] = prev;
+		} else {
+			subset[k-1]++;
+			return true;
+		}
 	}
-	if(i==k)
+	if(++subset[0] <= n-k) {
+		for(i=1; i<k; i++)
+			subset[i] = i+subset[0];
+		return true;
+	}
+	return false;
 }
 
 int main() {
@@ -51,11 +67,6 @@ int main() {
 		for(int i=0; i<n_operas; i++)
 			for(int j=0; j<n_operas; j++)
 				distances[i][j] = adj_mat[stores[i]][stores[j]];
-
-		
-
-		
-		
 	}
 	return 0;
 }
