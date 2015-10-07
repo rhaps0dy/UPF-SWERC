@@ -11,45 +11,38 @@ using namespace std;
 // includes the house
 #define STORES 51
 
-int price_save[OPERAS];
-int stores[OPERAS];
-int distances[OPERAS][OPERAS];
-int adj_mat[STORES][STORES];
-
-static int subset[OPERAS+1]; // k <= N
-void init_subset(int k, int n) {
-       int i;
-       for(i=0; i<k; i++)
-               subset[i] = i;
-       subset[k] = n;
-}
-bool next_subset(int k, int n) {
-       int i;
-       for(i=1; i<k; i++) {
-               if(subset[k-i] == n-i) {
-                       int prev = subset[k-i-i] + 2;
-                       if(prev < subset[k-i+1]-1)
-                               subset[k-1] = prev;
-               } else {
-                       subset[k-1]++;
-                       return true;
-               }
-       }
-       if(++subset[0] <= n-k) {
-               for(i=1; i<k; i++)
-                       subset[i] = i+subset[0];
-               return true;
-       }
-       return false;
-}
-
-typedef int SubsetHash;
+typedef int Subset;
 typedef int Cost;
-SubsetHash subset_hash(int k) {
-	SubsetHash res = 0;
-	for(int i=0; i<k; i++)
-		res |= 1 << subset[i]; 
-	return res;
+
+Cost price_save[OPERAS], distances[OPERAS][OPERAS], adj_mat[STORES][STORES],
+	tsp_memoize[1 << (OPERAS+1)][OPERAS];
+int stores[OPERAS];
+int n_operas;
+Cost total_minimum;
+
+constexpr Cost sentinel = numeric_limits<int>::max();
+
+#define TSP(subset, i) (tsp_memoize[subset][i] == sentinel ? tsp(subset, i) : tsp_memoize[subset][i])
+
+Cost tsp(const Subset subset, const int i) {
+	Subset without = subset ^ (1 << i);
+	Cost minimum = numeric_limits<Cost>::max();
+	for(int j=0; j<n_operas; j++) {
+		if(j==i || (without & (1 << j)) == 0)
+			continue;
+		Cost v = TSP(without, j);
+		v += distances[i][j];
+		if(v < minimum)
+			minimum = v;
+	}
+	minimum -= price_save[i];
+	int m = minimum + adj_mat[0][stores[i]];
+	if(m < total_minimum)
+		total_minimum = m;
+#ifndef ONLINE_JUDGE
+	printf("tsp_memoize[%x][%d] = %d, %d\n", subset, i, minimum, minimum + adj_mat[0][stores[i]]);
+#endif
+	return tsp_memoize[subset][i] = minimum;
 }
 
 int main() {
@@ -59,79 +52,75 @@ int main() {
 		int n_stores, n_roads;
 		scanf("%d %d", &n_stores, &n_roads);
 		n_stores++; // count the house
-		std::fill(&distances[0][0], &distances[0][0]+sizeof(distances)/sizeof(distances[0][0]), 99999999);
-		std::fill(&adj_mat[0][0], &adj_mat[0][0]+sizeof(adj_mat)/sizeof(adj_mat[0][0]), 99999999);
+		std::fill(&adj_mat[0][0], &adj_mat[0][0]+sizeof(adj_mat)/sizeof(adj_mat[0][0]), sentinel);
 		while(n_roads--) {
 			int i, j;
 			scanf("%d %d", &i, &j);
-			int dollars, cents;
+			Cost dollars, cents;
 			scanf("%d.%d", &dollars, &cents);
-			adj_mat[j][i] = adj_mat[i][j] = dollars*100 + cents;
+			dollars = dollars * 100 + cents;
+			if(dollars < adj_mat[j][i])
+				adj_mat[j][i] = adj_mat[i][j] = dollars;
 		}
 
 		for (int k = 0; k < n_stores; k++)
 			for (int i = 0; i < n_stores; i++)
-				for (int j = 0; j < n_stores; j++)
+				for (int j = 0; j < n_stores; j++) {
+					if(adj_mat[i][k] == sentinel || adj_mat[k][j] == sentinel)
+						continue;
 					adj_mat[i][j] = std::min(adj_mat[i][j], adj_mat[i][k] + adj_mat[k][j]);
+				}
 
-		int n_operas;
 		scanf("%d", &n_operas);
 		for(int i=0; i<n_operas; i++) {
 			scanf("%d", &stores[i]);
-			int dollars, cents;
+			Cost dollars, cents;
 			scanf("%d.%d", &dollars, &cents);
 			price_save[i] = dollars*100 + cents;
 		}
-
 		for(int i=0; i<n_operas; i++)
 			for(int j=0; j<n_operas; j++)
 				distances[i][j] = adj_mat[stores[i]][stores[j]];
 
-		// now calculate the tsp with dynamic programming
-		map<SubsetHash, Cost> cost[OPERAS];
-		Cost total_minimum = numeric_limits<Cost>::max();
-		for(int i=0; i<n_operas; i++) {
-			int v = adj_mat[0][stores[i]];
-			cost[i][1<<i] = v - price_save[i];
-			int v2 = v * 2;
-			if(v2 < total_minimum)
-				total_minimum = v2;
-		}
-
-		for(int set_size=2; set_size <= n_operas; set_size++) {
-			init_subset(set_size, n_operas);
-			do {
-				SubsetHash h = subset_hash(set_size);
-				for(int i=0; i<set_size; i++) {
-					int elem_i = subset[i];
-					SubsetHash without = h & ~(1 << elem_i); 
-					Cost minimum = numeric_limits<Cost>::max();
-					for(int j=0; j<set_size; j++) {
-						if(j==i)
-							continue;
-						int elem_j = subset[j];
-						Cost v = cost[elem_j][without] + distances[elem_i][elem_j];
-						if(v < minimum)
-							minimum = v;
-					}
-					minimum -= price_save[elem_i];
-					cost[elem_i][h] = minimum;
-					minimum += adj_mat[0][stores[elem_i]];
-					if(minimum < total_minimum)
-						total_minimum = minimum;
-				}
-			} while(next_subset(set_size, n_operas));
-		}
-
 #ifndef ONLINE_JUDGE
-		for(int i=0; i<n_operas; i++) {
-			printf("For node %d:\n", i);
-			for(auto it=cost[i].begin(); it !=cost[i].end(); it++) {
-				printf("%x -> %d\n", it->first, it->second);
-			}
+		for(int i=0; i<n_stores; i++) {
+			for(int j=0; j<n_stores; j++)
+				printf("%d ", adj_mat[i][j]);
 			putchar('\n');
 		}
+
+		for(int i=0; i<n_operas; i++) {
+			for(int j=0; j<n_operas; j++)
+				printf("%d ", distances[i][j]);
+			putchar('\n');
+		}
+
+		puts("distances from 0:");
+		for(int i=0; i<n_operas; i++)
+			printf("%d ", adj_mat[0][stores[i]]);
+		putchar('\n');
+		puts("saving costs");
+		for(int i=0; i<n_operas; i++)
+			printf("%d ", price_save[i]);
+		putchar('\n');
 #endif
+
+		total_minimum = numeric_limits<Cost>::max();
+		fill(&tsp_memoize[0][0], &tsp_memoize[0][0] + sizeof(tsp_memoize) / sizeof(tsp_memoize[0][0]), sentinel);
+		for(int i=0; i<n_operas; i++) {
+			int v = adj_mat[0][stores[i]];
+			if(v == sentinel) continue;
+			v = tsp_memoize[1<<i][i] = v - price_save[i];
+#ifndef ONLINE_JUDGE
+			printf("tsp_memoize[%x][%d] = %d\n", 1<<i, i, tsp_memoize[1<<i][i]);
+#endif
+			v += adj_mat[0][stores[i]];
+			if(v < total_minimum)
+				total_minimum = v;
+		}
+		if(n_operas > 1)
+			for(int i=0; i<n_operas; i++)
+				tsp(0xffff >> (16 - n_operas), i);
 
 		if(total_minimum >= 0)
 			puts("Don't leave the house");
