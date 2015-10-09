@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
-#include <cstdio>
 #include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
@@ -14,13 +14,10 @@ double v_walk, v_bike;
 struct ternary {
 public:
 	double search(double a1, double a2, double bb1, double bb2) const {
-//		printf("Initially %lf %lf %lf %lf\n", a1, a2, bb1, bb2);
 		double b1=bb1, b2=bb2;
 		while(fabs(a1-a2) > PRECISION) {
 			double t1 = eval(a1, b1);
-//			printf("fun(%lf, %lf) = %lf\n", a1, b1, t1);
 			double t2 = eval(a2, b1);
-//			printf("fun(%lf, %lf) = %lf\n", a2, b1, t2);
 			if(t1 < t2) {
 				a2 += (a1-a2)/3.;
 			} else {
@@ -29,9 +26,7 @@ public:
 			b1=bb1, b2=bb2;
 			while(fabs(b1-b2) > PRECISION) {
 				double t1 = eval(a1, b1);
-//			printf("fun(%lf, %lf) = %lf\n", a1, b1, t1);
 				double t2 = eval(a1, b2);
-//			printf("fun(%lf, %lf) = %lf\n", a1, b2, t2);
 				if(t1 < t2) {
 					b2 += (b1-b2)/3.;
 				} else {
@@ -39,7 +34,6 @@ public:
 				}
 			}
 		}
-//		printf("%lf with %lf, %lf\n", eval(a1, b1), a1, b1);
 		return eval(a1, b1);
 	}
 	virtual double eval(double a, double b) const = 0;
@@ -90,6 +84,7 @@ double stx[1000], sty[1000];
 int main() {
 	double xg, yg, xd, yd;
 	double X1, Y1, X2, Y2;
+	cout << setprecision(9);
 	while(cin >> v_walk >> v_bike) {
 		cin >> X1 >> Y1 >> X2 >> Y2;
 		cin >> xg >> yg >> xd >> yd;
@@ -118,6 +113,15 @@ int main() {
 		min_time = min(min_time, same_dim(yd, Y1, Y2, yg, xd, xg).search(X1, X2, X1, X2));
 		min_time = min(min_time, same_dim(yg, Y1, Y2, yd, xg, xd).search(X1, X2, X1, X2));
 
+		min_time = min(min_time, same_dim(xd, X1, X1, xg, yd, yg).search(Y1, Y2, Y1, Y2));
+		min_time = min(min_time, same_dim(xg, X1, X1, xd, yg, yd).search(Y1, Y2, Y1, Y2));
+		min_time = min(min_time, same_dim(xg, X2, X2, xd, yg, yd).search(Y1, Y2, Y1, Y2));
+		min_time = min(min_time, same_dim(xd, X2, X2, xg, yd, yg).search(Y1, Y2, Y1, Y2));
+		min_time = min(min_time, same_dim(yd, Y1, Y1, yg, xd, xg).search(X1, X2, X1, X2));
+		min_time = min(min_time, same_dim(yg, Y1, Y1, yd, xg, xd).search(X1, X2, X1, X2));
+		min_time = min(min_time, same_dim(yg, Y2, Y2, yd, xg, xd).search(X1, X2, X1, X2));
+		min_time = min(min_time, same_dim(yd, Y2, Y2, yg, xd, xg).search(X1, X2, X1, X2));
+
 		for(int i=0; i<n_stations; i++) {
 			min_time = min(min_time, with_station(xd, stx[i], X1, xg, yd, sty[i], yg).search(Y1, Y2));
 			min_time = min(min_time, with_station(xd, stx[i], X2, xg, yd, sty[i], yg).search(Y1, Y2));
@@ -129,7 +133,7 @@ int main() {
 			min_time = min(min_time, with_station(yg, sty[i], Y2, yd, xg, stx[i], xd).search(X1, X2));
 		}
 
-		printf("%.7lf\n", min_time);
+		cout << min_time << endl;
 	}
 	return 0;
 }
