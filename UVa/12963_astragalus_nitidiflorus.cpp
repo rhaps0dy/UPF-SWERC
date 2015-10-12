@@ -6,9 +6,9 @@
 
 using namespace std;
 
-#define MAX 150
+#define MAX 160
 
-char mat[MAX+1][MAX+1];
+char mat[MAX][MAX];
 
 typedef unsigned long long Hash;
 
@@ -64,13 +64,13 @@ int main() {
 	while(Ncases--) {
 		int R, C;
 		scanf("%d %d", &R, &C);
+		gets(&mat[0][0]);
+		for(int i=0; i<R; i++)
+			gets(&mat[i][0]);
 		if(R < ast_len || C < gar_len) {
 			puts("0");
 			continue;
 		}
-		gets(&mat[0][0]);
-		for(int i=0; i<R; i++)
-			gets(&mat[i][0]);
 		vector<int> gar_starts[MAX];
 
 		int garban_n = 0;
@@ -116,7 +116,11 @@ int main() {
 			}
 		}
 		VI a, b;
-		printf("%d\n", BipartiteMatching(used, a, b));
+		if(used.size() == 0 || used[0].size() == 0) {
+			puts("0");
+		} else {
+			printf("%d\n", BipartiteMatching(used, a, b));
+		}
 	}
 	return 0;
 }
