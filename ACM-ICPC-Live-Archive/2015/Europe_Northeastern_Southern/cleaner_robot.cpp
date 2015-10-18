@@ -115,8 +115,6 @@ int main()
 			}
 		}
 		
-		bool rotated = false;
-		
 		while (!isAllPossibleCleaned())
 		{
 			cleanCurrentPosition();
