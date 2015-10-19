@@ -1,3 +1,8 @@
+/**
+ * Author: Daniel F.B.
+ * 18/10/2015
+ * Time: 0.039
+ */
 #include <iostream>
 #include <algorithm>
 #include <cmath>
