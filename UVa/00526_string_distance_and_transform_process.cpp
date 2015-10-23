@@ -75,7 +75,7 @@ int main() {
 			}
 		}
 		for(; i>0; i--)
-			actions.push(make_pair(DELETE, make_pair(1, '?')));
+			actions.push(make_pair(DELETE, make_pair(i, '?')));
 		for(; j>0; j--)
 			actions.push(make_pair(INSERT, make_pair(1, s2[j-1])));
 		int pos_offset=0, index=1;
@@ -93,6 +93,7 @@ int main() {
 				printf("%d Delete %d\n", index, p.second.first + pos_offset);
 				pos_offset--;
 				break;
+			case NOTHING: break;
 			}
 			actions.pop();
 			index++;
