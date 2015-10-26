@@ -79,12 +79,18 @@ merge_block(int lo, int block_sz, bool increase_over) {
 
 static void
 water_pumpkins(int lo, int hi, int block_sz) {
-	if(lo%block_sz != 0)
+	bool lo_first_in_block = lo%block_sz == 0,
+		hi_last_in_block = (hi+1)%block_sz == 0;
+	if(!lo_first_in_block)
 		merge_block(lo, block_sz, true);
-	if((hi+1)%block_sz != 0)
+	if(!hi_last_in_block)
 		merge_block(hi+1, block_sz, false);
-	for(int i=lo/block_sz + (lo%block_sz == 0 ? 0 : 1); i<((hi+1)%block_sz == 0 ? 1 : 0) + hi/block_sz; i++)
+	int min_block_i = lo/block_sz + (lo_first_in_block ? 0 : 1),
+		max_block_i = (hi_last_in_block ? 1 : 0) + hi/block_sz;
+	for(int i=min_block_i; i<max_block_i; i++)
 		blocks[i].n++;
+	if(lo/block_sz == hi/block_sz && !lo_first_in_block && !hi_last_in_block)
+		blocks[lo/block_sz].n--;
 }
 
 int main() {
