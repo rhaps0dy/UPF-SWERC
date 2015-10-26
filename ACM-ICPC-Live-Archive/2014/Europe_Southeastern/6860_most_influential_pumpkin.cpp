@@ -23,32 +23,32 @@ vector<pair<int, int> > increased, non_increased;
 
 static int
 smaller_in_block(int i, int median) {
-	int min_i = blocks[i].start_i, max_i = blocks[i].end_i-1;
-	if(max_i < min_i)
-		return 0;
+	int min_i, max_i, med_i = blocks[i].med_i, end_i = blocks[i].end_i, start_i = blocks[i].start_i;
 	median -= blocks[i].n;
-	if(pumpkins[max_i].X < median)
-		return max_i - min_i + 1;
-	if(max_i == min_i) {
-		if(pumpkins[min_i].X < median)
-			return 1;
-		else {
-//			blocks[i].med_i = blocks[i].start_i-1;
+	if(med_i == end_i) {
+		if(pumpkins[med_i-1].X < median) {
+			return med_i - start_i;
+		} else {
+			min_i = start_i;
+			max_i = end_i;
+		}
+	} else {
+		if(pumpkins[med_i].X < median) {
+			min_i = med_i;
+			max_i = end_i;
+		} else if(med_i == start_i) {
 			return 0;
+		} else {
+			if(pumpkins[med_i-1].X < median) {
+				return med_i - start_i;
+			} else {
+				min_i = start_i;
+				max_i = med_i;
+			}
 		}
 	}
-	while(min_i < max_i) {
-		int mid = (min_i + max_i + 1) / 2;
-		if(pumpkins[mid].X < median)
-			min_i = mid;
-		else
-			max_i = mid-1;
-	}
-	// handle the case that none is smaller than median
-	if(pumpkins[min_i].X >= median)
-		min_i--;
-//	blocks[i].med_i = min_i;
-	return min_i - blocks[i].start_i + 1;
+	blocks[i].med_i = lower_bound(pumpkins+min_i, pumpkins+max_i, MP(median, -1)) - pumpkins;
+	return blocks[i].med_i - start_i;
 }
 
 static void
@@ -107,12 +107,9 @@ int main() {
 			n_blocks = N/block_sz + (N % block_sz == 0 ? 0 : 1);
 		for(int i=0; i<n_blocks; i++) {
 			blocks[i].n = 0;
-			blocks[i].start_i = i*block_sz;
-			blocks[i].end_i = /* blocks[i].med_i = */ min((i+1)*block_sz, N);
-//			blocks[i].med_i--;
+			blocks[i].start_i = blocks[i].med_i = i*block_sz;
+			blocks[i].end_i = min((i+1)*block_sz, N);
 			sort(pumpkins+blocks[i].start_i, pumpkins+blocks[i].end_i);
-			// not really needed 
-			// (void) smaller_in_block(i, median);
 		}
 
 #ifndef ONLINE_JUDGE
