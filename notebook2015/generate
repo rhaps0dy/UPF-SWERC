@@ -1,0 +1,2 @@
+#!/bin/sh
+notebook-generator . ./notebook.pdf
