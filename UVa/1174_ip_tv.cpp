@@ -1,7 +1,7 @@
 /**
  * Daniel F.B. (Ertsiger)
  * 11/11/2015
- * Time: 0.146
+ * Time: 0.079
  */
 #include <iostream>
 #include <vector>
