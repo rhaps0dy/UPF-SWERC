@@ -102,6 +102,8 @@ int main()
     // each facility has an edge to 't' with capacity 1 and cost 0.
     // Besides the edges between chefs and facilities must have capacity 1 and
     // the cost is specified by the problem statement.
+    // https://en.wikipedia.org/wiki/Minimum-cost_flow_problem
+    // https://en.wikipedia.org/wiki/File:Minimum_weight_bipartite_matching.pdf
     while (T--)
     {
         // Chefs, facilities and edges
