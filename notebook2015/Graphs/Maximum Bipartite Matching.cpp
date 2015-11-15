@@ -1,5 +1,6 @@
 /* Input: VVI with 1 if connected, 0 if not. mr and mc have the matches
- * for each side. From Stanford University's notebook. */
+ * for each side. Complexity: E * V. 
+ * From Stanford University's notebook. */
 typedef vector<int> VI;
 typedef vector<VI> VVI;
 
