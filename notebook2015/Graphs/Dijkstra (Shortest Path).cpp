@@ -1,4 +1,4 @@
-// Complexity: ElogV
+// Complexity: ElogV - Input: undirected graph
 typedef int V;          // tipo de costes
 typedef pair<V,int> P;  // par de (coste,nodo)
 typedef set<P> S;       // conjunto de pares

@@ -4,8 +4,8 @@ int p[] = {5,3,7,1,8,2,7,3}; // peso de objetos
 int A[1001][1001]; // matriz de resultados
 
 int main() {
-    int C;             // capacidad C <= 1000
-    cin >> C;
+    int C = 7; // capacidad C <= 1000
+
     for (int j = 0; j <= C; j++)
         A[0][j] = 0;
     for (int i = 1; i <= N; i++) {
@@ -18,5 +18,5 @@ int main() {
             }
         }
     }
-    cout << A[N][C] << endl;
+    cout << A[N][C] << endl; // output: 12
 }

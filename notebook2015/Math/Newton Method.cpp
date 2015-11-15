@@ -9,7 +9,7 @@ bool solutionFound = false;
 while (true)
 {
 	long double y = /* formula of the original function */;
-	long double yprime = /* formula of the first derivative */;
+	long double yprime = /* formula of the first derivative respect to c */;
 	c1 = c0 - y / yprime;
 	if ((fabs(c1 - c0) / fabs(c1)) < tolerance)
 	{

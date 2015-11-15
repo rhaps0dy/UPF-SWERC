@@ -1,4 +1,4 @@
-// Complexity: ElogV
+// Complexity: ElogV - Input: undirected graph
 typedef vector<pair<int,pair<int,int> > > V;
 
 int N, mf[2000]; // numero de nodos N <= 2000

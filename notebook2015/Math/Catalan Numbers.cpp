@@ -1,4 +1,4 @@
-unsigned long long v[34];
+unsigned long long v[34]; // 1, 1, 2, 5, 14, 42, 132, 429, 1430, ...
 void catalan(){
     v[0] = 1;
     for (int i = 1; i < 34; ++i){

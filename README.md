@@ -1,8 +1,7 @@
 UPF-SWERC
 =========
 
-Los problemas resueltos y en camino de resolucion del SWERC.
+Los problemas resueltos y en camino de resolución del SWERC.
 
-En jsego/ACM está el repositorio de problemas de los entrenadores.
-
+Repositorio de los entrenadores (https://github.com/jsego/ACM).
 
