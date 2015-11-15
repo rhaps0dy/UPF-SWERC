@@ -1,9 +1,11 @@
-// Cost: ElogV
+// Complexity: ElogV
 typedef vector<pair<int,pair<int,int> > > V;
 
 int N, mf[2000]; // numero de nodos N <= 2000
 V v;             // vector de aristas
                  // (coste, (nodo1, nodo2))
+
+// vector< pair<long, int> > K[3001]; // kruskal tree
 
 int set(int n) { // conjunto conexo de n
     if (mf[n] == n) return n;
@@ -20,6 +22,8 @@ int kruskal() {
         if (a != b) { // si conjuntos son diferentes
             mf[b] = a;  // unificar los conjuntos
             sum += v[i].X; // agregar coste de arista
+			// K[v[i].Y.X].PB(MP(v[i].X, v[i].Y.Y));
+			// K[v[i].Y.Y].PB(MP(v[i].X, v[i].Y.X));
         }
     }
     return sum;

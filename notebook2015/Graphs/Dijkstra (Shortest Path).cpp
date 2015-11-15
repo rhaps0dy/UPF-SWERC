@@ -1,10 +1,16 @@
-// Cost: ElogV
+// Complexity: ElogV
 typedef int V;          // tipo de costes
 typedef pair<V,int> P;  // par de (coste,nodo)
 typedef set<P> S;       // conjunto de pares
 
 int N;                  // numero de nodos
 vector<P> A[10001];     // listas adyacencia (coste,nodo)
+
+// int prec[201]; // predecesores (nodes from s to t)
+// another way to obtain a path (above all, if there is
+// more than one, consists in using BFS from the target
+// and add to the queue those nodes that lead to the 
+// minimum cost in the preceeding node)
 
 V dijkstra(int s, int t) {
     S m;                          // cola de prioridad
@@ -24,6 +30,7 @@ V dijkstra(int s, int t) {
                 m.erase(MP(z[q.Y], q.Y)); // borrar anterior
                 m.insert(q);              // insertar q
                 z[q.Y] = q.X;             // actualizar distancia
+				// prec[q.Y] = p.Y;       // actualizar predecesores
             }
         }
     }

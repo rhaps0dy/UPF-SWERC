@@ -8,8 +8,8 @@ void toposort(int M) {
     int current;
 
     // Search for roots (identifiers might change between 
-    // problems (e.g. 0 to M))
-    for(int m = 1; m <= M; m++){
+    // problems (e.g. 1 to M))
+    for(int m = 0; m < M; m++){
         if(inbound[m] == 0)
             order.push(m);
     }
@@ -31,3 +31,10 @@ void toposort(int M) {
     }
 }
 
+int main() {
+    A[0].push_back(1); A[0].push_back(2); A[2].push_back(1);
+    inbound[0] = 0; inbound[1] = 2; inbound[2] = 1;
+    toposort(3);
+    for (int i = 0; i < fo.size(); ++i) cout << fo[i] << " ";
+    // 0 2 1
+}
