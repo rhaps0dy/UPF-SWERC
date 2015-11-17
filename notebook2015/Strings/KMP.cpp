@@ -1,4 +1,4 @@
-/*Search of substring in O(n+k) */
+/*Search of substring in O(n+k)*/
 void TablaKMP(string T,vector<int> &F)
 {
     int pos = 2; // posicion actual en F
@@ -13,7 +13,7 @@ void TablaKMP(string T,vector<int> &F)
             F[pos] = cnd;
             pos++;
         }else if(cnd > 0)
-        {//sifallan coincidencias consecutivas entonces asignamos valor conocido la primera vez
+        {//si fallan coincidencias consecutivas entonces asignamos valor conocido la primera vez
             cnd = F[cnd];
         }else{
             F[pos] = 0 ;
@@ -21,12 +21,12 @@ void TablaKMP(string T,vector<int> &F)
         }
     }
 }
-int KMPSearch(string T, string P)//T: texto donde se busca P: palabra a buscar salida: posicion del match (-1 si no encontrado
+vector<int> KMPSearch(string T, string P)//T: texto donde se busca ,P: palabra a buscar ,salida: vector de posiciones match
 {
     int k = 0 ; //puntero de T
     int i = 0 ; //avance en P
 
-    vector<int> F(T.size(),0);
+    vector<int> F(T.size(),0),sol;
 
     if(T.size() >= P.size())
     {
@@ -37,7 +37,7 @@ int KMPSearch(string T, string P)//T: texto donde se busca P: palabra a buscar s
             {
                 if(i == P.size()-1)
                 {
-                    return k; //modificando el return podemos devolver todos los matches
+                    sol.push_back(k); //modificando el return podemos devolver todos los matches
                 }
                 i++;
             }else{
@@ -49,11 +49,15 @@ int KMPSearch(string T, string P)//T: texto donde se busca P: palabra a buscar s
             }
         }
     }
-    return -1;
+    return sol;
 }
 
 int main(){
     string T = "PARTICIPARIA CON MI PARACAIDAS PARTICULAR";
-    string P = "RTI";
-    cout<<KMPSearch(T,P)<<endl;
+    string P = "A";
+    vector<int> founds = KMPSearch(T,P);
+    for(int i = 0 ; i < founds.size();++i)
+    {
+        cout<<founds[i]<<endl;
+    }
 }
