@@ -1,0 +1,8 @@
+\verb-m[0][_] = m[_][0] = 0-. \verb-m[i][j]- is the edit distance of \verb-s1[0..i]- and
+\verb-s2[0..j]-. \verb-m[i][j] = min(operations)-, where operations are:
+\begin{itemize}
+\item Add character, subtract character \verb|m[i-1][j] + 1|, \verb|m[i][j-1] + 1| respectively
+\item Change character \verb|m[i-1][j-1] + (if s1[i] == s2[j] then 1 else 0)|
+\item Swap last two characters \verb|m[i-2][j-2] + (if s1[i-1] == s2[j]|
+\verb| && s1[i] == s2[j-1] then 1)|.
+\end{itemize}
