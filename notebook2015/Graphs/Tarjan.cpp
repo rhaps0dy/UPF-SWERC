@@ -1,5 +1,6 @@
 int index, ct;
 vector<bool> I;
+// L indica el indice del conjunto fuertemente conexo al que pertenece cada nodo
 vector<int> D, L, S;
 vector<vector<int> > V; // listas de adyacencia
 
@@ -33,7 +34,7 @@ void scc() {
     D = vector<int>(V.size(), -1);
     L = vector<int>(V.size());
     S.clear();
-    for (unsigned n = 1; n <= V.size(); ++n)
+    for (unsigned n = 0; n < V.size(); ++n)
         if (D[n] < 0)
           tarjan(n);
     // ct = numero total de scc
