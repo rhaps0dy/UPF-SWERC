@@ -1,8 +1,9 @@
+// Complexity |V| + |E|
 int index, ct;
 vector<bool> I;
 // L indica el indice del conjunto fuertemente conexo al que pertenece cada nodo
 vector<int> D, L, S;
-vector<vector<int> > V; // listas de adyacencia
+vector<vector<int> > V; // listas de adyacencia (grafo dirigido)
 
 void tarjan (unsigned n) {
     D[n] = L[n] = index++;

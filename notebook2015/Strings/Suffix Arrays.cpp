@@ -61,6 +61,26 @@ int main() {
     SuffixArray suffix("bobocel");
     vector<int> v = suffix.GetSuffixArray();
 
+    // indices of the first character in the ith suffix
+	// 0th suffix (bobocel) -> 0
+	// 1st suffix (bocel) -> 2
+	// 2nd suffix (cel) -> 4
+	vector<int> s(v.size());
+	for (int i = 0; i < v.size(); ++i)
+	{
+		s[v[i]] = i;
+	}
+    
+    // with the 's' vector we would compare whether suffix i
+    // has a common prefix with all suffixes from i + 1 to
+    // i + M by doing the LCP between just i and i + M.
+    // for (int i = 0; i <= N - M; ++i)
+    // {
+    //  int s1 = S[i];
+    //  int s2 = S[i + M - 1];
+    //  int length = suffix.LongestCommonPrefix(s1, s2);
+    // }
+    
     // Expected output: 0 5 1 6 2 3 4
     //                  2
     for (int i = 0; i < v.size(); i++) cout << v[i] << " ";
